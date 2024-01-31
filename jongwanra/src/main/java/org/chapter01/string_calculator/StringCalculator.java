@@ -4,44 +4,49 @@ import java.util.Arrays;
 import java.util.List;
 
 public class StringCalculator {
+	private static final String DEFAULT_SEPERATOR = ",|:";
 	public int add(final String targetString) {
-		// 구분자를 찾자.
-		Character seperator = findSeperator(targetString);
+		if(targetString == null || targetString.isEmpty()){
+			return 0;
+		}
+
+		String seperator = findSeperator(targetString);
 		final String pureTargetString = removeCustomSeperatorIfExist(targetString, seperator);
 		List<String> splitTargetString = splitBySeperator(seperator, pureTargetString);
+		validateHasNegativeNumber(splitTargetString);
 		return add(splitTargetString);
 	}
 
-	private  List<String> splitBySeperator(Character seperator, String pureTargetString) {
-		return Arrays.stream(pureTargetString.split(String.valueOf(seperator))).toList();
+	private  List<String> splitBySeperator(String seperator, String pureTargetString) {
+		return Arrays.stream(pureTargetString.split(seperator)).toList();
 	}
 
-	private String removeCustomSeperatorIfExist(String targetString, Character seperator) {
-		if(seperator.equals(':') || seperator.equals(',')){
+	private String removeCustomSeperatorIfExist(String targetString, String seperator) {
+		if(seperator.equals(DEFAULT_SEPERATOR)){
 			return targetString;
 		}
 		return targetString.substring(4);
 	}
 
-	private Character findSeperator(String targetString) {
+	private String findSeperator(String targetString) {
 		if(targetString.startsWith("//")){
-			return targetString.charAt(2);
+			return String.valueOf(targetString.charAt(2));
 		}
-		if(targetString.contains(":")){
-			return ':';
-		}
+		return DEFAULT_SEPERATOR;
 
-		return ',';
 	}
 
 	private int add(List<String> splitTargetString) {
-		int sum = 0;
+		return splitTargetString.stream()
+			.mapToInt(Integer::parseInt)
+			.sum();
+	}
+
+
+	private void validateHasNegativeNumber(List<String> splitTargetString) {
 		for (String s : splitTargetString) {
-			final int targetNumber = Integer.parseInt(s);
-			validateIsNegativeNumber(targetNumber);
-			sum += targetNumber;
+			validateIsNegativeNumber(Integer.parseInt(s));
 		}
-		return sum;
 	}
 
 	private void validateIsNegativeNumber(final int targetNumber) {

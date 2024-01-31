@@ -15,6 +15,8 @@ class StringCalculatorTest {
 	}
 
 
+
+
 	@DisplayName("쉼표(,)를 구분자로 가지는 문자열을 전달하는 경우 쉼표를 기준으로 분리한 각 숫자의 합을 반환한다.")
 	@Test
 	void add() {
@@ -69,5 +71,49 @@ class StringCalculatorTest {
 
 		assertThatThrownBy(() -> stringCalculator.add(targetString3))
 			.isInstanceOf(RuntimeException.class);
+	}
+
+	@DisplayName("빈 문자열을 전달하는 경우 0을 반환한다.")
+	@Test
+	void add4() {
+		// given
+		final String targetString = "";
+
+		// when & then
+		assertThat(0).isEqualTo(stringCalculator.add(targetString));
+	}
+
+	@DisplayName("null을 전달하는 경우 0을 반환한다.")
+	@Test
+	void add5() {
+		// given
+		final String targetString = null;
+
+		// when & then
+		assertThat(0).isEqualTo(stringCalculator.add(targetString));
+	}
+
+	@DisplayName("문자열 숫자 하나를 전달할 경우 해당 숫자를 반환한다.")
+	@Test
+	void add6() {
+		// given
+		final String targetString = "1";
+		final String targetString2 = "2";
+
+		// when & then
+		assertThat(1).isEqualTo(stringCalculator.add(targetString));
+		assertThat(2).isEqualTo(stringCalculator.add(targetString2));
+	}
+
+	@DisplayName("구분자가 , 혹은 : 으로 혼합되어 있을 경우에도 정상적으로 동작한다.")
+	@Test
+	void add7() {
+		// given
+		final String targetString = "1:2,3";
+		final String targetString2 = "1,2:3";
+
+		// when & then
+		assertThat(6).isEqualTo(stringCalculator.add(targetString));
+		assertThat(6).isEqualTo(stringCalculator.add(targetString2));
 	}
 }
