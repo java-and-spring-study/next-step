@@ -5,27 +5,36 @@ import java.util.List;
 
 public class StringCalculator {
 	private static final String DEFAULT_SEPERATOR = ",|:";
-	public int add(final String targetString) {
-		if(targetString == null || targetString.isEmpty()){
+	public int add(final String value) {
+		if(isBlank(value)){
 			return 0;
 		}
 
-		String seperator = findSeperator(targetString);
-		final String pureTargetString = removeCustomSeperatorIfExist(targetString, seperator);
-		List<String> splitTargetString = splitBySeperator(seperator, pureTargetString);
-		validateHasNegativeNumber(splitTargetString);
-		return add(splitTargetString);
+		String seperator = findSeperator(value);
+		List<Integer> numbers = toInts(split(seperator, removeCustomSeperator(value, seperator)));
+		validateHasNegativeNumber(numbers);
+		return sum(numbers);
 	}
 
-	private  List<String> splitBySeperator(String seperator, String pureTargetString) {
-		return Arrays.stream(pureTargetString.split(seperator)).toList();
+	private List<Integer> toInts(List<String> values) {
+		return values.stream()
+			.map(Integer::parseInt)
+			.toList();
 	}
 
-	private String removeCustomSeperatorIfExist(String targetString, String seperator) {
+	private  boolean isBlank(String targetValue) {
+		return targetValue == null || targetValue.isEmpty();
+	}
+
+	private  List<String> split(String seperator, String value) {
+		return Arrays.stream(value.split(seperator)).toList();
+	}
+
+	private String removeCustomSeperator(String value, String seperator) {
 		if(seperator.equals(DEFAULT_SEPERATOR)){
-			return targetString;
+			return value;
 		}
-		return targetString.substring(4);
+		return value.substring(4);
 	}
 
 	private String findSeperator(String targetString) {
@@ -36,21 +45,21 @@ public class StringCalculator {
 
 	}
 
-	private int add(List<String> splitTargetString) {
-		return splitTargetString.stream()
-			.mapToInt(Integer::parseInt)
+	private int sum(List<Integer> numbers) {
+		return numbers.stream()
+			.mapToInt(Integer::intValue)
 			.sum();
 	}
 
 
-	private void validateHasNegativeNumber(List<String> splitTargetString) {
-		for (String s : splitTargetString) {
-			validateIsNegativeNumber(Integer.parseInt(s));
+	private void validateHasNegativeNumber(List<Integer> numbers) {
+		for (Integer number : numbers) {
+			validateIsNegativeNumber(number);
 		}
 	}
 
-	private void validateIsNegativeNumber(final int targetNumber) {
-		if(targetNumber < 0) {
+	private void validateIsNegativeNumber(final int number) {
+		if(number < 0) {
 			throw new RuntimeException("");
 		}
 	}
