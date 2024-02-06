@@ -1,5 +1,7 @@
 package org.chapter01.tdd_string_calculator;
 
+import java.util.Arrays;
+
 public class StringCalculator {
 	public int add(String value) {
 		if(isBlank(value)) {
@@ -40,10 +42,19 @@ public class StringCalculator {
 	}
 
 	private int sum(Integer[] numbers) {
-		int sum = 0;
-		for (int number : numbers) {
-			sum += number;
-		}
-		return sum;
+		return Arrays.stream(numbers)
+			.mapToInt(Integer::intValue)
+			.sum();
 	}
 }
+
+/**
+ *
+ * stream 왜 느릴까?!
+ * assertThrow랑 차이점?
+ *
+ * 시간 측정
+ * https://www.baeldung.com/java-override-system-time
+ * https://jojoldu.tistory.com/676
+ * 자바와 JUnit을 활용한 실용주의 단위 테스트
+ */

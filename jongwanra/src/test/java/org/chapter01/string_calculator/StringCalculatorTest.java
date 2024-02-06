@@ -16,7 +16,6 @@ class StringCalculatorTest {
 
 
 
-
 	@DisplayName("쉼표(,)를 구분자로 가지는 문자열을 전달하는 경우 쉼표를 기준으로 분리한 각 숫자의 합을 반환한다.")
 	@Test
 	void add() {
@@ -64,7 +63,8 @@ class StringCalculatorTest {
 
 		// when & then
 		assertThatThrownBy(() -> stringCalculator.add(targetString1))
-			.isInstanceOf(RuntimeException.class);
+			.isInstanceOf(RuntimeException.class)
+			.hasMessage("음수는 허용되지 않습니다.");
 
 		assertThatThrownBy(() -> stringCalculator.add(targetString2))
 			.isInstanceOf(RuntimeException.class);
