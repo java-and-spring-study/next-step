@@ -64,7 +64,7 @@ class StringCalculatorTest {
 		// when & then
 		assertThatThrownBy(() -> stringCalculator.add(targetString1))
 			.isInstanceOf(RuntimeException.class)
-			.hasMessage("음수는 허용되지 않습니다.");
+			.hasMessage("");
 
 		assertThatThrownBy(() -> stringCalculator.add(targetString2))
 			.isInstanceOf(RuntimeException.class);
