@@ -23,7 +23,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>18.0</version>
+			<version>32.0.0-android</version>
 		</dependency>
 
 		<!-- logger -->
@@ -47,10 +47,10 @@
 		</resources>
 
 		<plugins>
-			<plugin>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<version>2.9</version>
-			</plugin>
+<!--			<plugin>-->
+<!--				<artifactId>maven-eclipse-plugin</artifactId>-->
+<!--				<version>2.9</version>-->
+<!--			</plugin>-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
