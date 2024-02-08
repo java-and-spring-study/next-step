@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RequestHandler extends Thread {
-    private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
+    // private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
 
     private Socket connection;
 
@@ -19,8 +19,10 @@ public class RequestHandler extends Thread {
     }
 
     public void run() {
-        log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
-                connection.getPort());
+        System.out.println("New Client Connect! Connected IP : " + connection.getInetAddress() + ", Port : "
+                + connection.getPort());
+        // log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
+        //         connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
@@ -29,7 +31,8 @@ public class RequestHandler extends Thread {
             response200Header(dos, body.length);
             responseBody(dos, body);
         } catch (IOException e) {
-            log.error(e.getMessage());
+            System.out.println(e.getMessage());
+            // log.error(e.getMessage());
         }
     }
 
@@ -40,7 +43,8 @@ public class RequestHandler extends Thread {
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
-            log.error(e.getMessage());
+            System.out.println(e.getMessage());
+            // log.error(e.getMessage());
         }
     }
 
@@ -49,7 +53,8 @@ public class RequestHandler extends Thread {
             dos.write(body, 0, body.length);
             dos.flush();
         } catch (IOException e) {
-            log.error(e.getMessage());
+            System.out.println(e.getMessage());
+            // log.error(e.getMessage());
         }
     }
 }
