@@ -56,14 +56,14 @@ public class RequestHandler extends Thread {
     }
 
     private void handleStaticFile(DataOutputStream dos, final String filePath) throws IOException {
-        BufferedReader fileBufferedReader = new BufferedReader(new FileReader("webapp" + filePath));
+        BufferedReader reader = new BufferedReader(new FileReader("webapp" + filePath));
         StringBuilder stringBuilder = new StringBuilder();
 
-        String byteBody;
-        while((byteBody = fileBufferedReader.readLine()) != null) {
-            stringBuilder.append(byteBody);
+        String value;
+        while((value = reader.readLine()) != null) {
+            stringBuilder.append(value);
         }
-        fileBufferedReader.close();
+        reader.close();
 
         final byte[] body = stringBuilder.toString().getBytes();
         response200Header(dos, body.length);
