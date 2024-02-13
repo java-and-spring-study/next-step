@@ -9,9 +9,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class RequestHandler extends Thread {
     // private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
 
@@ -37,31 +34,41 @@ public class RequestHandler extends Thread {
 
             final String methodAndHost = bufferedReader.readLine();
 
-            if(methodAndHost.contains("index.html")) {
-                BufferedReader fileBufferedReader = new BufferedReader(new FileReader("webapp/index.html"));
-
-                StringBuilder sb = new StringBuilder();
-                String byteBody;
-                while((byteBody = fileBufferedReader.readLine()) != null) {
-                    System.out.println("byteBody = " + byteBody);
-                    sb.append(byteBody);
-                }
-                final byte[] body = sb.toString().getBytes();
-                response200Header(dos, body.length);
-                responseBody(dos, body);
-
-                fileBufferedReader.close();
-            }else {
-                byte[] body = "Hello Worldasasas".getBytes();
-                response200Header(dos, body.length);
-                responseBody(dos, body);
+            if(isStaticFile(methodAndHost)) {
+                handleStaticFile(dos, methodAndHost.split(" ")[1]);
+                return;
             }
+
+            byte[] body = "Hello World".getBytes();
+            response200Header(dos, body.length);
+            responseBody(dos, body);
+
 
 
         } catch (IOException e) {
             System.out.println(e.getMessage());
             // log.error(e.getMessage());
         }
+    }
+
+    private boolean isStaticFile(final String value) {
+        return value.contains(".html");
+    }
+
+    private void handleStaticFile(DataOutputStream dos, final String filePath) throws IOException {
+        BufferedReader fileBufferedReader = new BufferedReader(new FileReader("webapp" + filePath));
+        StringBuilder stringBuilder = new StringBuilder();
+
+        String byteBody;
+        while((byteBody = fileBufferedReader.readLine()) != null) {
+            stringBuilder.append(byteBody);
+        }
+        fileBufferedReader.close();
+
+        final byte[] body = stringBuilder.toString().getBytes();
+        response200Header(dos, body.length);
+        responseBody(dos, body);
+
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
