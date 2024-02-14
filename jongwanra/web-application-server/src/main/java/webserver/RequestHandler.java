@@ -25,6 +25,8 @@ import util.IOUtils;
 
 public class RequestHandler extends Thread {
     // private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
+    private static final String LOGIN_FAILED_PAGE = "http://localhost:8080/user/login_failed.html";
+    private static final String INDEX_PAGE = "http://localhost:8080/index.html";
 
     private Socket connection;
 
@@ -75,12 +77,36 @@ public class RequestHandler extends Thread {
                     User user = new User(parsedBody.get("userId"), parsedBody.get("password"), parsedBody.get("name"), parsedBody.get("email"));
                     DataBase.addUser(user);
                 }
-                responseHeader(dos, 0, HttpStatus.REDIRECT);
+                responseHeader(dos, 0, HttpStatus.REDIRECT, "http://localhost:8080/index.html");
                 responseBody(dos, new byte[]{});
                 return;
 
             }
 
+            if(requestUri.startsWith("/user/login")) {
+                int contentLength = 0;
+                String target;
+                while(!(target = bufferedReader.readLine()).equals("")){
+                    if(target.startsWith("Content-Length")) {
+                        contentLength = Integer.parseInt(target.split(": ")[1]);
+                    }
+                }
+                String body = IOUtils.readData(bufferedReader, contentLength);
+                Map<String, String> parsedBody = HttpRequestUtils.parseQueryString(body);
+                final String userId = parsedBody.get("userId");
+                final String password = parsedBody.get("password");
+
+                User foundUser = DataBase.findUserById(userId);
+                if(foundUser == null) {
+                    responseLoginHeader(dos, 0, false);
+                    responseBody(dos, new byte[]{});
+                    return;
+                }
+
+                responseLoginHeader(dos, 0, true);
+                responseBody(dos, new byte[]{});
+                return;
+            }
 
             byte[] body = "Hello World".getBytes();
             response200Header(dos, body.length);
@@ -98,28 +124,9 @@ public class RequestHandler extends Thread {
         return value.contains(".html");
     }
 
-    private void handleStaticFileV1(DataOutputStream dos, final String filePath) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader("webapp" + filePath));
-        StringBuilder stringBuilder = new StringBuilder();
-
-        String value;
-        while((value = reader.readLine()) != null) {
-            stringBuilder.append(value);
-        }
-        reader.close();
-
-        final byte[] body = stringBuilder.toString().getBytes();
-        response200Header(dos, body.length);
-        responseBody(dos, body);
-
-    }
-
-    /**
-     * 책의 힌트를 보고 재구성
-     */
     private void handleStaticFileV2(DataOutputStream dos, final String filePath, HttpStatus httpStatus) throws IOException {
         byte[] body = Files.readAllBytes(new File("webapp" + filePath).toPath());
-        responseHeader(dos, body.length, httpStatus);
+        responseHeader(dos, body.length, httpStatus, null);
         responseBody(dos, body);
 
     }
@@ -136,6 +143,50 @@ public class RequestHandler extends Thread {
         }
     }
 
+
+    private void responseLoginHeader(DataOutputStream dos, int lengthOfBodyContent, boolean isLoginSuccess) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Found\r\n");
+            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("Set-Cookie: logined=" + (isLoginSuccess ? "true" : "false") + "\r\n");
+
+            if(isLoginSuccess) {
+                dos.writeBytes("Location: " + INDEX_PAGE + "\r\n") ;
+            }else {
+                dos.writeBytes("Location: " + LOGIN_FAILED_PAGE + "\r\n");
+            }
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            // log.error(e.getMessage());
+        }
+    }
+
+
+
+
+    private void responseHeader(DataOutputStream dos, int lengthOfBodyContent, HttpStatus httpStatus, final String redirectUrl) {
+        try {
+            dos.writeBytes("HTTP/1.1 "
+                + httpStatus.getCode()
+                + " "
+                + httpStatus.getMessage() + "\r\n");
+            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+
+            if(httpStatus.equals(HttpStatus.REDIRECT)) {
+                dos.writeBytes("Location: " + redirectUrl);
+            }
+            dos.writeBytes("\r\n");
+
+
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            // log.error(e.getMessage());
+        }
+    }
+
     private void responseHeader(DataOutputStream dos, int lengthOfBodyContent, HttpStatus httpStatus) {
         try {
             dos.writeBytes("HTTP/1.1 "
@@ -146,7 +197,7 @@ public class RequestHandler extends Thread {
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
 
             if(httpStatus.equals(HttpStatus.REDIRECT)) {
-                dos.writeBytes("Location: http://localhost:8080/index.html");
+                dos.writeBytes("Location: " +  "http://localhost:8080/index.html");
             }
             dos.writeBytes("\r\n");
 
