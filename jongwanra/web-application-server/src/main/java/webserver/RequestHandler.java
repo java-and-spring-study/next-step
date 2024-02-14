@@ -54,7 +54,7 @@ public class RequestHandler extends Thread {
             final String requestUri = parsedHttpRequestMap.get("requestUri");
             final String method = parsedHttpRequestMap.get("method");
             final int contentLength = Integer.parseInt(parsedHttpRequestMap.get("contentLength"));
-            final boolean isLogin = Boolean.parseBoolean(parsedHttpRequestMap.get("isLogin") == null ? "false" : parsedHttpRequestMap.get("isLogin"));
+            final boolean isLogin = Boolean.parseBoolean(parsedHttpRequestMap.get("logined") == null ? "false" : parsedHttpRequestMap.get("logined"));
             System.out.println("isLogin = " + isLogin);
 
             if(isStaticFile(requestUri)) {

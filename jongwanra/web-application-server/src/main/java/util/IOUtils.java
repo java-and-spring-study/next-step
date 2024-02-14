@@ -32,11 +32,13 @@ public class IOUtils {
                 map.put("requestUri", httpFirstSentence[1]);
             } else if(target.startsWith("Content-Length")) {
                 map.put("contentLength", target.split(": ")[1]);
-            } else if(target.contains("logined=true;")) {
-                map.put("isLogin", "true");
+            } else if(target.startsWith("Cookie: ")) {
+                Map<String, String> parsedCookieMap = HttpRequestUtils.parseCookies(target.substring(8));
+                for (String key : parsedCookieMap.keySet()) {
+                    map.put(key, parsedCookieMap.get(key));
+                }
             }
         }
-
         System.out.println("map = " + map);
         return map;
     }
