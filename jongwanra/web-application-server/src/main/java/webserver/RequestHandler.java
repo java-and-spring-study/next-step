@@ -10,6 +10,15 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import db.DataBase;
+import model.User;
 
 public class RequestHandler extends Thread {
     // private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -35,10 +44,33 @@ public class RequestHandler extends Thread {
             DataOutputStream dos = new DataOutputStream(out);
 
             final String methodAndHost = bufferedReader.readLine();
+            final String requestUri = methodAndHost.split(" ")[1];
             if(isStaticFile(methodAndHost)) {
                 handleStaticFileV2(dos, extractFilePath(methodAndHost));
                 return;
             }
+
+            if(requestUri.startsWith("/user/create")) {
+                final String pathParameter = requestUri.split("\\?")[1];
+                String[] pathParameters = pathParameter.split("&");
+                Map<String, String> map = new HashMap<>(pathParameters.length);
+                for (String parameter : pathParameters) {
+                    final String key = parameter.split("=")[0];
+                    final String value = parameter.split("=")[1];
+
+                    map.put(key, value);
+                }
+
+                for (String key : map.keySet()) {
+                    System.out.println("key=" + key + " value=" + map.get(key));
+                }
+
+                User user = new User(map.get("userId"), map.get("password"), map.get("name"), map.get("email"));
+                DataBase.addUser(user);
+
+            }
+
+            System.out.println("methodAndHost = " + methodAndHost);
 
             byte[] body = "Hello World".getBytes();
             response200Header(dos, body.length);
