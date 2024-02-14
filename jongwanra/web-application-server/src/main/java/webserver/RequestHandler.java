@@ -27,6 +27,8 @@ public class RequestHandler extends Thread {
     // private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
     private static final String LOGIN_FAILED_PAGE = "http://localhost:8080/user/login_failed.html";
     private static final String INDEX_PAGE = "http://localhost:8080/index.html";
+    private static final String USER_LIST_PAGE = "http://localhost:8080/user/list.html";
+    private static final String LOGIN_PAGE = "http://localhost:8080/user/login.html";
 
     private Socket connection;
 
@@ -48,12 +50,20 @@ public class RequestHandler extends Thread {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             DataOutputStream dos = new DataOutputStream(out);
 
-            String httpFirstSentence = bufferedReader.readLine();
-            String[] split = httpFirstSentence.split(" ");
+            Map<String, String> parsedHttpRequestMap = IOUtils.parseHttpRequest(bufferedReader);
+            final String requestUri = parsedHttpRequestMap.get("requestUri");
+            final String method = parsedHttpRequestMap.get("method");
+            final int contentLength = Integer.parseInt(parsedHttpRequestMap.get("contentLength"));
+            final boolean isLogin = Boolean.parseBoolean(parsedHttpRequestMap.get("isLogin") == null ? "false" : parsedHttpRequestMap.get("isLogin"));
+            System.out.println("isLogin = " + isLogin);
 
-            String method = split[0];
-            String requestUri = split[1];
             if(isStaticFile(requestUri)) {
+                if(requestUri.startsWith("/user/list") && !isLogin) {
+                    responseHeader(dos, 0, HttpStatus.REDIRECT, LOGIN_PAGE);
+                    responseBody(dos, new byte[]{});
+                    return;
+                }
+
                 handleStaticFileV2(dos, requestUri, HttpStatus.OK);
                 return;
             }
@@ -65,32 +75,18 @@ public class RequestHandler extends Thread {
                     User user = new User(parsedQueryString.get("userId"), parsedQueryString.get("password"), parsedQueryString.get("name"), parsedQueryString.get("email"));
                     DataBase.addUser(user);
                 }else {
-                    String target;
-                    int contentLength = 0;
-                    while(!(target = bufferedReader.readLine()).equals("")){
-                        if(target.startsWith("Content-Length")) {
-                            contentLength = Integer.parseInt(target.split(": ")[1]);
-                        }
-                    }
                     String body = IOUtils.readData(bufferedReader, contentLength);
                     Map<String, String> parsedBody = HttpRequestUtils.parseQueryString(body);
                     User user = new User(parsedBody.get("userId"), parsedBody.get("password"), parsedBody.get("name"), parsedBody.get("email"));
                     DataBase.addUser(user);
                 }
-                responseHeader(dos, 0, HttpStatus.REDIRECT, "http://localhost:8080/index.html");
+                responseHeader(dos, 0, HttpStatus.REDIRECT, INDEX_PAGE);
                 responseBody(dos, new byte[]{});
                 return;
 
             }
 
             if(requestUri.startsWith("/user/login")) {
-                int contentLength = 0;
-                String target;
-                while(!(target = bufferedReader.readLine()).equals("")){
-                    if(target.startsWith("Content-Length")) {
-                        contentLength = Integer.parseInt(target.split(": ")[1]);
-                    }
-                }
                 String body = IOUtils.readData(bufferedReader, contentLength);
                 Map<String, String> parsedBody = HttpRequestUtils.parseQueryString(body);
                 final String userId = parsedBody.get("userId");
@@ -107,6 +103,7 @@ public class RequestHandler extends Thread {
                 responseBody(dos, new byte[]{});
                 return;
             }
+
 
             byte[] body = "Hello World".getBytes();
             response200Header(dos, body.length);
@@ -187,26 +184,6 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private void responseHeader(DataOutputStream dos, int lengthOfBodyContent, HttpStatus httpStatus) {
-        try {
-            dos.writeBytes("HTTP/1.1 "
-                + httpStatus.getCode()
-                + " "
-                + httpStatus.getMessage() + "\r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-
-            if(httpStatus.equals(HttpStatus.REDIRECT)) {
-                dos.writeBytes("Location: " +  "http://localhost:8080/index.html");
-            }
-            dos.writeBytes("\r\n");
-
-
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            // log.error(e.getMessage());
-        }
-    }
 
     private void responseBody(DataOutputStream dos, byte[] body) {
         try {
