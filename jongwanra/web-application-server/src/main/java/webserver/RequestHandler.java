@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 import db.DataBase;
 import model.User;
+import util.HttpRequestUtils;
 
 public class RequestHandler extends Thread {
     // private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -43,34 +44,19 @@ public class RequestHandler extends Thread {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             DataOutputStream dos = new DataOutputStream(out);
 
-            final String methodAndHost = bufferedReader.readLine();
-            final String requestUri = methodAndHost.split(" ")[1];
-            if(isStaticFile(methodAndHost)) {
-                handleStaticFileV2(dos, extractFilePath(methodAndHost));
+            final String requestUri = bufferedReader.readLine().split(" ")[1];
+            if(isStaticFile(requestUri)) {
+                handleStaticFileV2(dos, requestUri);
                 return;
             }
 
             if(requestUri.startsWith("/user/create")) {
-                final String pathParameter = requestUri.split("\\?")[1];
-                String[] pathParameters = pathParameter.split("&");
-                Map<String, String> map = new HashMap<>(pathParameters.length);
-                for (String parameter : pathParameters) {
-                    final String key = parameter.split("=")[0];
-                    final String value = parameter.split("=")[1];
-
-                    map.put(key, value);
-                }
-
-                for (String key : map.keySet()) {
-                    System.out.println("key=" + key + " value=" + map.get(key));
-                }
-
-                User user = new User(map.get("userId"), map.get("password"), map.get("name"), map.get("email"));
+                final String queryString = requestUri.split("\\?")[1];
+                Map<String, String> parsedQueryString = HttpRequestUtils.parseQueryString(queryString);
+                User user = new User(parsedQueryString.get("userId"), parsedQueryString.get("password"), parsedQueryString.get("name"), parsedQueryString.get("email"));
                 DataBase.addUser(user);
-
             }
 
-            System.out.println("methodAndHost = " + methodAndHost);
 
             byte[] body = "Hello World".getBytes();
             response200Header(dos, body.length);
@@ -82,10 +68,6 @@ public class RequestHandler extends Thread {
             System.out.println(e.getMessage());
             // log.error(e.getMessage());
         }
-    }
-
-    private String extractFilePath(String methodAndHost) {
-        return methodAndHost.split(" ")[1];
     }
 
     private boolean isStaticFile(final String value) {
