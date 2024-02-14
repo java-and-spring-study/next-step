@@ -18,8 +18,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import db.DataBase;
+import enums.HttpStatus;
 import model.User;
 import util.HttpRequestUtils;
+import util.IOUtils;
 
 public class RequestHandler extends Thread {
     // private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -44,17 +46,39 @@ public class RequestHandler extends Thread {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             DataOutputStream dos = new DataOutputStream(out);
 
-            final String requestUri = bufferedReader.readLine().split(" ")[1];
+            String httpFirstSentence = bufferedReader.readLine();
+            String[] split = httpFirstSentence.split(" ");
+
+            String method = split[0];
+            String requestUri = split[1];
             if(isStaticFile(requestUri)) {
-                handleStaticFileV2(dos, requestUri);
+                handleStaticFileV2(dos, requestUri, HttpStatus.OK);
                 return;
             }
 
             if(requestUri.startsWith("/user/create")) {
-                final String queryString = requestUri.split("\\?")[1];
-                Map<String, String> parsedQueryString = HttpRequestUtils.parseQueryString(queryString);
-                User user = new User(parsedQueryString.get("userId"), parsedQueryString.get("password"), parsedQueryString.get("name"), parsedQueryString.get("email"));
-                DataBase.addUser(user);
+                if(method.equals("GET")) {
+                    final String queryString = requestUri.split("\\?")[1];
+                    Map<String, String> parsedQueryString = HttpRequestUtils.parseQueryString(queryString);
+                    User user = new User(parsedQueryString.get("userId"), parsedQueryString.get("password"), parsedQueryString.get("name"), parsedQueryString.get("email"));
+                    DataBase.addUser(user);
+                }else {
+                    String target;
+                    int contentLength = 0;
+                    while(!(target = bufferedReader.readLine()).equals("")){
+                        if(target.startsWith("Content-Length")) {
+                            contentLength = Integer.parseInt(target.split(": ")[1]);
+                        }
+                    }
+                    String body = IOUtils.readData(bufferedReader, contentLength);
+                    Map<String, String> parsedBody = HttpRequestUtils.parseQueryString(body);
+                    User user = new User(parsedBody.get("userId"), parsedBody.get("password"), parsedBody.get("name"), parsedBody.get("email"));
+                    DataBase.addUser(user);
+                }
+                responseHeader(dos, 0, HttpStatus.REDIRECT);
+                responseBody(dos, new byte[]{});
+                return;
+
             }
 
 
@@ -93,9 +117,9 @@ public class RequestHandler extends Thread {
     /**
      * 책의 힌트를 보고 재구성
      */
-    private void handleStaticFileV2(DataOutputStream dos, final String filePath) throws IOException {
+    private void handleStaticFileV2(DataOutputStream dos, final String filePath, HttpStatus httpStatus) throws IOException {
         byte[] body = Files.readAllBytes(new File("webapp" + filePath).toPath());
-        response200Header(dos, body.length);
+        responseHeader(dos, body.length, httpStatus);
         responseBody(dos, body);
 
     }
@@ -106,6 +130,27 @@ public class RequestHandler extends Thread {
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            // log.error(e.getMessage());
+        }
+    }
+
+    private void responseHeader(DataOutputStream dos, int lengthOfBodyContent, HttpStatus httpStatus) {
+        try {
+            dos.writeBytes("HTTP/1.1 "
+                + httpStatus.getCode()
+                + " "
+                + httpStatus.getMessage() + "\r\n");
+            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+
+            if(httpStatus.equals(HttpStatus.REDIRECT)) {
+                dos.writeBytes("Location: http://localhost:8080/index.html");
+            }
+            dos.writeBytes("\r\n");
+
+
         } catch (IOException e) {
             System.out.println(e.getMessage());
             // log.error(e.getMessage());

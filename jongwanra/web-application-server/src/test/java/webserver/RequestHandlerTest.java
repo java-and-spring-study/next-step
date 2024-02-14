@@ -4,6 +4,11 @@ import org.junit.Test;
 
 import static org.hamcrest.core.Is.*;
 import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 public class RequestHandlerTest {
 
 	@Test
@@ -24,5 +29,6 @@ public class RequestHandlerTest {
 		assertThat('d', is((char) bytes[10]));
 
 	}
+
 
 }
