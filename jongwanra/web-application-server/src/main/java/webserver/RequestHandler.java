@@ -55,7 +55,11 @@ public class RequestHandler extends Thread {
             final String method = parsedHttpRequestMap.get("method");
             final int contentLength = Integer.parseInt(parsedHttpRequestMap.get("contentLength"));
             final boolean isLogin = Boolean.parseBoolean(parsedHttpRequestMap.get("logined") == null ? "false" : parsedHttpRequestMap.get("logined"));
-            System.out.println("isLogin = " + isLogin);
+
+            if(isCssFile(requestUri)) {
+                handleCssFile(dos, requestUri);
+                return;
+            }
 
             if(isStaticFile(requestUri)) {
                 if(requestUri.startsWith("/user/list") && !isLogin) {
@@ -117,6 +121,22 @@ public class RequestHandler extends Thread {
         }
     }
 
+    private void responseCssHeader(DataOutputStream dos, final int lengthOfBodyContent) {
+        try {
+            dos.writeBytes("HTTP/1.1 200 OK \r\n");
+            dos.writeBytes("Content-Type: text/css;charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            // log.error(e.getMessage());
+        }
+    }
+
+    private boolean isCssFile(String requestUri) {
+        return requestUri.endsWith(".css");
+    }
+
     private boolean isStaticFile(final String value) {
         return value.contains(".html");
     }
@@ -126,6 +146,12 @@ public class RequestHandler extends Thread {
         responseHeader(dos, body.length, httpStatus, null);
         responseBody(dos, body);
 
+    }
+
+    private void handleCssFile(DataOutputStream dos, final  String filePath) throws IOException {
+        byte[] body = Files.readAllBytes(new File("webapp" + filePath).toPath());
+        responseCssHeader(dos, body.length);
+        responseBody(dos, body);
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
