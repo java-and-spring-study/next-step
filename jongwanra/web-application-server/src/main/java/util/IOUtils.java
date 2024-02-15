@@ -21,34 +21,34 @@ public class IOUtils {
     }
 
 
-    public static Map<String, String> parseHttpRequest(BufferedReader br) throws IOException {
-        Map<String, String> map = generateDefaultHttpRequest();
+    // public static Map<String, String> parseHttpRequest(BufferedReader br) throws IOException {
+    //     Map<String, String> map = generateDefaultHttpRequest();
+    //
+    //     String target;
+    //     while(!(target = br.readLine()).equals("")){
+    //         if(target.startsWith("GET") || target.startsWith("POST")){
+    //             String[] httpFirstSentence = target.split(" ");
+    //             map.put("method", httpFirstSentence[0]);
+    //             map.put("requestUri", httpFirstSentence[1]);
+    //         } else if(target.startsWith("Content-Length")) {
+    //             map.put("contentLength", target.split(": ")[1]);
+    //         } else if(target.startsWith("Cookie: ")) {
+    //             Map<String, String> parsedCookieMap = HttpRequestUtils.parseCookies(target.substring(8));
+    //             for (String key : parsedCookieMap.keySet()) {
+    //                 map.put(key, parsedCookieMap.get(key));
+    //             }
+    //         }
+    //     }
+    //     System.out.println("map = " + map);
+    //     return map;
+    // }
 
-        String target;
-        while(!(target = br.readLine()).equals("")){
-            if(target.startsWith("GET") || target.startsWith("POST")){
-                String[] httpFirstSentence = target.split(" ");
-                map.put("method", httpFirstSentence[0]);
-                map.put("requestUri", httpFirstSentence[1]);
-            } else if(target.startsWith("Content-Length")) {
-                map.put("contentLength", target.split(": ")[1]);
-            } else if(target.startsWith("Cookie: ")) {
-                Map<String, String> parsedCookieMap = HttpRequestUtils.parseCookies(target.substring(8));
-                for (String key : parsedCookieMap.keySet()) {
-                    map.put(key, parsedCookieMap.get(key));
-                }
-            }
-        }
-        System.out.println("map = " + map);
-        return map;
-    }
-
-    private static Map<String, String> generateDefaultHttpRequest() {
-        Map<String, String> map = new HashMap<>();
-        map.put("requestUri", null);
-        map.put("method", null);
-        map.put("contentLength", "0");
-
-        return map;
-    }
+    // private static Map<String, String> generateDefaultHttpRequest() {
+    //     Map<String, String> map = new HashMap<>();
+    //     map.put("requestUri", null);
+    //     map.put("method", null);
+    //     map.put("contentLength", "0");
+    //
+    //     return map;
+    // }
 }
