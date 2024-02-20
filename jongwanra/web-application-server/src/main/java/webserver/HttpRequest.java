@@ -93,4 +93,13 @@ public class HttpRequest {
 			", queryStrings=" + queryStrings +
 			'}';
 	}
+
+	public boolean isHtmlFile() {
+		return requestUri.contains(".html");
+	}
+
+	public boolean isCssFile() {
+		 return requestUri.endsWith(".css");
+ 	}
+
 }
