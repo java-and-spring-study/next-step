@@ -60,7 +60,7 @@ public class RequestHandler extends Thread {
             }
 
             if(url.startsWith(userCreatePath)) {
-                User user = createUserWithPostMethod(bufferedReader, contentLength);
+                User user = createUSer(bufferedReader, contentLength);
                 log.debug("created user info : {}", user);
 
                 DataBase.addUser(user);
@@ -202,7 +202,7 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private User createUserWithPostMethod(BufferedReader bufferedReader, int contentLength) throws IOException {
+    private User createUSer(BufferedReader bufferedReader, int contentLength) throws IOException {
         String requestBody = IOUtils.readData(bufferedReader, contentLength);
         Map<String, String> userCreateData = HttpRequestUtils.parseQueryString(requestBody);
 
