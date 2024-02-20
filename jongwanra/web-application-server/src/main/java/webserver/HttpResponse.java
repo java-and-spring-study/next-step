@@ -43,8 +43,7 @@ public class HttpResponse {
 			}
 			dos.writeBytes("\r\n");
 		} catch (IOException e) {
-			System.out.println(e.getMessage());
-			// log.error(e.getMessage());
+			log.error(e.getMessage());
 		}
 	}
 
@@ -95,8 +94,7 @@ public class HttpResponse {
 
 
 		} catch (IOException e) {
-			System.out.println(e.getMessage());
-			// log.error(e.getMessage());
+			log.error(e.getMessage());
 		}
 	}
 
@@ -105,8 +103,7 @@ public class HttpResponse {
 			dos.write(body, 0, body.length);
 			dos.flush();
 		} catch (IOException e) {
-			System.out.println(e.getMessage());
-			// log.error(e.getMessage());
+			log.error(e.getMessage());
 		}
 	}
 	private void handleStaticFile(final String filePath)  {
@@ -138,8 +135,7 @@ public class HttpResponse {
 			dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
 			dos.writeBytes("\r\n");
 		} catch (IOException e) {
-			System.out.println(e.getMessage());
-			// log.error(e.getMessage());
+			log.error(e.getMessage());
 		}
 	}
 }

@@ -64,8 +64,7 @@ public class RequestHandler extends Thread {
 
             httpResponse.handleDefault();
         } catch (IOException e) {
-            System.out.println(e.getMessage());
-            // log.error(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 
