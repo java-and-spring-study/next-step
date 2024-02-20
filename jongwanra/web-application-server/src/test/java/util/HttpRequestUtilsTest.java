@@ -59,7 +59,7 @@ public class HttpRequestUtilsTest {
     }
 
     @Test
-    public void getKeyValue_invalid() throws Exception {
+    public void getKeyValue_invalid() {
         Pair pair = HttpRequestUtils.getKeyValue("userId", "=");
         assertThat(pair, is(nullValue()));
     }
