@@ -35,26 +35,25 @@ public class RequestHandler extends Thread {
             BufferedReader bufferedReader = new BufferedReader((new InputStreamReader(in)));
             ) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-            DataOutputStream dos = new DataOutputStream(out);
 
             HttpRequest httpRequest = HttpRequest.parse(bufferedReader);
-            HttpResponse httpResponse = new HttpResponse();
+            HttpResponse httpResponse = new HttpResponse(new DataOutputStream(out));
             final String requestUri = httpRequest.getRequestUri();
             final boolean isLogin = httpRequest.isLogin();
 
             if(httpRequest.isCssFile()) {
-                httpResponse.handleCssFile(dos, requestUri);
+                httpResponse.handleCssFile(requestUri);
                 return;
             }
 
             if(httpRequest.isHtmlFile()) {
                 if(requestUri.startsWith("/user/list") && !isLogin) {
-                    httpResponse.responseHeader(dos, 0, HttpStatus.REDIRECT, LOGIN_PAGE);
-                    httpResponse.responseBody(dos, new byte[]{});
+                    httpResponse.responseHeader(0, HttpStatus.REDIRECT, LOGIN_PAGE);
+                    httpResponse.responseBody( new byte[]{});
                     return;
                 }
 
-                httpResponse.handleStaticFileV2(dos, requestUri, HttpStatus.OK);
+                httpResponse.handleStaticFileV2( requestUri, HttpStatus.OK);
                 return;
             }
 
@@ -62,8 +61,8 @@ public class RequestHandler extends Thread {
                 Map<String, String> parsedBody = httpRequest.getBodies();
                 User user = new User(parsedBody.get("userId"), parsedBody.get("password"), parsedBody.get("name"), parsedBody.get("email"));
                 DataBase.addUser(user);
-                httpResponse.responseHeader(dos, 0, HttpStatus.REDIRECT, INDEX_PAGE);
-                httpResponse.responseBody(dos, new byte[]{});
+                httpResponse.responseHeader(0, HttpStatus.REDIRECT, INDEX_PAGE);
+                httpResponse.responseBody(new byte[]{});
                 return;
             }
 
@@ -74,20 +73,20 @@ public class RequestHandler extends Thread {
                 User foundUser = DataBase.findUserById(userId);
                 log.debug("foundUser = {}", foundUser);
                 if(foundUser == null) {
-                    httpResponse.responseLoginHeader(dos, 0, false);
-                    httpResponse.responseBody(dos, new byte[]{});
+                    httpResponse.responseLoginHeader(0, false);
+                    httpResponse.responseBody( new byte[]{});
                     return;
                 }
 
-                httpResponse.responseLoginHeader(dos, 0, true);
-                httpResponse.responseBody(dos, new byte[]{});
+                httpResponse.responseLoginHeader( 0, true);
+                httpResponse.responseBody( new byte[]{});
                 return;
             }
 
 
             byte[] body = "Hello World".getBytes();
-            httpResponse.response200Header(dos, body.length);
-            httpResponse.responseBody(dos, body);
+            httpResponse.response200Header( body.length);
+            httpResponse.responseBody( body);
 
         } catch (IOException e) {
             System.out.println(e.getMessage());

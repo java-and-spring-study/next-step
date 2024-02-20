@@ -8,17 +8,23 @@ import java.nio.file.Files;
 import enums.HttpStatus;
 
 public class HttpResponse {
+	private final DataOutputStream dos;
+
+	public HttpResponse(DataOutputStream dos) {
+		this.dos = dos;
+	}
+
 	private static final String INDEX_PAGE = "http://localhost:8080/index.html";
 	private static final String LOGIN_PAGE = "http://localhost:8080/user/login.html";
 	private static final String LOGIN_FAILED_PAGE = "http://localhost:8080/user/login_failed.html";
 
-	public void handleCssFile(DataOutputStream dos, final  String filePath) throws IOException {
+	public void handleCssFile(final String filePath) throws IOException {
 		byte[] body = Files.readAllBytes(new File("webapp" + filePath).toPath());
-		responseCssHeader(dos, body.length);
-		responseBody(dos, body);
+		responseCssHeader(body.length);
+		responseBody(body);
 	}
 
-	public void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
+	public void response200Header(int lengthOfBodyContent) {
 		try {
 			dos.writeBytes("HTTP/1.1 200 OK \r\n");
 			dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
@@ -30,7 +36,7 @@ public class HttpResponse {
 		}
 	}
 
-	public void responseCssHeader(DataOutputStream dos, final int lengthOfBodyContent) {
+	public void responseCssHeader(final int lengthOfBodyContent) {
 		try {
 			dos.writeBytes("HTTP/1.1 200 OK \r\n");
 			dos.writeBytes("Content-Type: text/css;charset=utf-8\r\n");
@@ -42,7 +48,7 @@ public class HttpResponse {
 		}
 	}
 
-	public void responseLoginHeader(DataOutputStream dos, int lengthOfBodyContent, boolean isLoginSuccess) {
+	public void responseLoginHeader(int lengthOfBodyContent, boolean isLoginSuccess) {
 		try {
 			dos.writeBytes("HTTP/1.1 302 Found\r\n");
 			dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
@@ -61,14 +67,14 @@ public class HttpResponse {
 		}
 	}
 
-	public void handleStaticFileV2(DataOutputStream dos, final String filePath, HttpStatus httpStatus) throws IOException {
+	public void handleStaticFileV2(final String filePath, HttpStatus httpStatus) throws IOException {
 		byte[] body = Files.readAllBytes(new File("webapp" + filePath).toPath());
-		responseHeader(dos, body.length, httpStatus, null);
-		responseBody(dos, body);
+		responseHeader(body.length, httpStatus, null);
+		responseBody(body);
 
 	}
 
-	public void responseBody(DataOutputStream dos, byte[] body) {
+	public void responseBody(byte[] body) {
 		try {
 			dos.write(body, 0, body.length);
 			dos.flush();
@@ -78,7 +84,7 @@ public class HttpResponse {
 		}
 	}
 
-	public void responseHeader(DataOutputStream dos, int lengthOfBodyContent, HttpStatus httpStatus, final String redirectUrl) {
+	public void responseHeader(int lengthOfBodyContent, HttpStatus httpStatus, final String redirectUrl) {
 		try {
 			dos.writeBytes("HTTP/1.1 "
 				+ httpStatus.getCode()
