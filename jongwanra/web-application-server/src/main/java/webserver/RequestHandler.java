@@ -12,19 +12,18 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import db.DataBase;
-import enums.HttpStatus;
-import model.User;
+import service.UserService;
+import service.input.UserCreateInput;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
-    private static final String INDEX_PAGE = "http://localhost:8080/index.html";
-    private static final String LOGIN_PAGE = "http://localhost:8080/user/login.html";
 
     private Socket connection;
+    private final UserService userService;
 
-    public RequestHandler(Socket connectionSocket) {
+    public RequestHandler(Socket connectionSocket, UserService userService) {
         this.connection = connectionSocket;
+        this.userService = userService;
     }
 
     public void run() {
@@ -34,8 +33,8 @@ public class RequestHandler extends Thread {
             OutputStream out = connection.getOutputStream();
             BufferedReader bufferedReader = new BufferedReader((new InputStreamReader(in)));
             ) {
-            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
 
+            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             HttpRequest httpRequest = HttpRequest.parse(bufferedReader);
             HttpResponse httpResponse = new HttpResponse(new DataOutputStream(out));
             final String requestUri = httpRequest.getRequestUri();
@@ -47,47 +46,23 @@ public class RequestHandler extends Thread {
             }
 
             if(httpRequest.isHtmlFile()) {
-                if(requestUri.startsWith("/user/list") && !isLogin) {
-                    httpResponse.responseHeader(0, HttpStatus.REDIRECT, LOGIN_PAGE);
-                    httpResponse.responseBody( new byte[]{});
-                    return;
-                }
-
-                httpResponse.handleStaticFileV2( requestUri, HttpStatus.OK);
+                httpResponse.handleHtmlFile(requestUri, isLogin);
                 return;
             }
 
             if(requestUri.startsWith("/user/create")) {
-                Map<String, String> parsedBody = httpRequest.getBodies();
-                User user = new User(parsedBody.get("userId"), parsedBody.get("password"), parsedBody.get("name"), parsedBody.get("email"));
-                DataBase.addUser(user);
-                httpResponse.responseHeader(0, HttpStatus.REDIRECT, INDEX_PAGE);
-                httpResponse.responseBody(new byte[]{});
+                userService.createUser(UserCreateInput.of(httpRequest.getBodies()));
+                httpResponse.handleCreateUser();
                 return;
             }
 
             if(requestUri.startsWith("/user/login")) {
                 Map<String, String> parsedBody = httpRequest.getBodies();
-                final String userId = parsedBody.get("userId");
-
-                User foundUser = DataBase.findUserById(userId);
-                log.debug("foundUser = {}", foundUser);
-                if(foundUser == null) {
-                    httpResponse.responseLoginHeader(0, false);
-                    httpResponse.responseBody( new byte[]{});
-                    return;
-                }
-
-                httpResponse.responseLoginHeader( 0, true);
-                httpResponse.responseBody( new byte[]{});
+                httpResponse.handleLogin(userService.findOrNullBy(parsedBody.get("userId")));
                 return;
             }
 
-
-            byte[] body = "Hello World".getBytes();
-            httpResponse.response200Header( body.length);
-            httpResponse.responseBody( body);
-
+            httpResponse.handleDefault();
         } catch (IOException e) {
             System.out.println(e.getMessage());
             // log.error(e.getMessage());

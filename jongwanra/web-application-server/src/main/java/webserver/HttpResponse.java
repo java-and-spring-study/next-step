@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import enums.HttpStatus;
+import model.User;
 
 public class HttpResponse {
 	private final DataOutputStream dos;
@@ -103,6 +104,37 @@ public class HttpResponse {
 			System.out.println(e.getMessage());
 			// log.error(e.getMessage());
 		}
+	}
+
+	public void handleHtmlFile(String requestUri, boolean isLogin) throws IOException {
+		if(requestUri.startsWith("/user/list") && !isLogin) {
+			responseHeader(0, HttpStatus.REDIRECT, LOGIN_PAGE);
+			responseBody( new byte[]{});
+			return;
+		}
+		handleStaticFileV2( requestUri, HttpStatus.OK);
+	}
+
+	public void handleCreateUser() {
+		responseHeader(0, HttpStatus.REDIRECT, INDEX_PAGE);
+		responseBody(new byte[]{});
+	}
+
+	public void handleLogin(User user) {
+		if(user == null) {
+			responseLoginHeader(0, false);
+			responseBody( new byte[]{});
+			return;
+		}
+
+		responseLoginHeader( 0, true);
+		responseBody( new byte[]{});
+	}
+
+	public void handleDefault() {
+		byte[] body = "Hello World".getBytes();
+		response200Header( body.length);
+		responseBody( body);
 	}
 }
 
