@@ -1,10 +1,8 @@
 package webserver;
 
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Map;
@@ -31,33 +29,32 @@ public class RequestHandler extends Thread {
         try (
             InputStream in = connection.getInputStream();
             OutputStream out = connection.getOutputStream();
-            BufferedReader bufferedReader = new BufferedReader((new InputStreamReader(in)));
-            ) {
+        ) {
 
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-            HttpRequest httpRequest = HttpRequest.parse(bufferedReader);
+            HttpRequest httpRequest = new HttpRequest(in);
             HttpResponse httpResponse = new HttpResponse(new DataOutputStream(out));
-            final String requestUri = httpRequest.getRequestUri();
+            final String path = httpRequest.getPath();
             final boolean isLogin = httpRequest.isLogin();
 
             if(httpRequest.isCssFile()) {
-                httpResponse.handleCssFile(requestUri);
+                httpResponse.handleCssFile(path);
                 return;
             }
 
             if(httpRequest.isHtmlFile()) {
-                httpResponse.handleHtmlFile(requestUri, isLogin);
+                httpResponse.handleHtmlFile(path, isLogin);
                 return;
             }
 
-            if(requestUri.startsWith("/user/create")) {
-                userService.createUser(UserCreateInput.of(httpRequest.getBodies()));
+            if(path.startsWith("/user/create")) {
+                userService.createUser(UserCreateInput.of(httpRequest.getBodyMap()));
                 httpResponse.handleCreateUser();
                 return;
             }
 
-            if(requestUri.startsWith("/user/login")) {
-                Map<String, String> parsedBody = httpRequest.getBodies();
+            if(path.startsWith("/user/login")) {
+                Map<String, String> parsedBody = httpRequest.getBodyMap();
                 httpResponse.handleLogin(userService.findOrNullBy(parsedBody.get("userId")));
                 return;
             }

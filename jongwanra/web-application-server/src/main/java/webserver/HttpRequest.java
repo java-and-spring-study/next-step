@@ -2,6 +2,8 @@ package webserver;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,93 +15,104 @@ import util.IOUtils;
 
 public class HttpRequest {
 	private static final Logger log = LoggerFactory.getLogger(HttpRequest.class);
-	private String method;
-	private String requestUri;
-	private int contentLength;
-	private Map<String,String> cookies = new HashMap<>();
-	private Map<String, String> queryStrings = new HashMap<>();
+	private Map<String, String> headerMap = new HashMap<>();
+	private Map<String,String> cookieMap = new HashMap<>();
+	private Map<String, String> parameterMap = new HashMap<>();
 
-	private Map<String, String> bodies = new HashMap<>();
-
- 	private HttpRequest() {}
+	private Map<String, String> bodyMap = new HashMap<>();
 
 	public String getMethod() {
-		return method;
+		return headerMap.get("method");
 	}
 
-	public Map<String, String> getBodies() {
-		return bodies;
+	public Map<String, String> getBodyMap() {
+		return bodyMap;
 	}
 
-	public void setBodies(Map<String, String> bodies) {
-		this.bodies = bodies;
+
+	public boolean isLogin() {
+		final String value = cookieMap.get("logined");
+		if(value == null) {
+			 return false;
+		}
+	 	return Boolean.parseBoolean(value);
 	}
 
-	public String getRequestUri() {
+
+	public HttpRequest(InputStream in) throws IOException{
+		BufferedReader bufferedReader = new BufferedReader((new InputStreamReader(in)));
+
+		final String firstLine = bufferedReader.readLine();
+		String[] httpSentence = firstLine.split(" ");
+		headerMap.put("method", httpSentence[0]);
+		headerMap.put("path", extractPath(httpSentence[1]));
+		parseQueryString(extractQueryString(httpSentence[1]));
+
+		String line;
+		while(!(line = bufferedReader.readLine()).equals("")) {
+			String[] pair = line.split(": ");
+			headerMap.put(pair[0], pair[1]);
+		}
+
+		handleCookie();
+
+		// log.debug("headerMap = {}", headerMap);
+
+		final String body =  IOUtils.readData(bufferedReader, Integer.parseInt(headerMap.getOrDefault("Content-Length", "0")));
+		this.bodyMap = HttpRequestUtils.parseQueryString(body);
+	}
+
+	private void handleCookie() {
+		final String cookieToParse = headerMap.get("Cookie");
+
+		if(cookieToParse == null) {
+			return;
+		}
+
+		cookieMap = HttpRequestUtils.parseCookies(cookieToParse);
+		log.debug("isHtmlFile() = {}", isHtmlFile());
+		log.debug("cookieMap = {}", cookieMap);
+
+	}
+
+	private String extractQueryString(String requestUri) {
+		if(!requestUri.contains("?")) {
+			return null;
+		}
+		return requestUri.split("\\?")[1];
+	}
+
+	private String extractPath(String requestUri) {
+		if(requestUri.contains("?")) {
+			return requestUri.split("\\?")[0];
+		}
 		return requestUri;
 	}
 
-	public Map<String, String> getQueryStrings() {
-		return queryStrings;
-	}
-
-	public boolean isLogin() {
-		final String value = cookies.get("logined");
-		if(value == null) {
-			 return false;		 }
-		 return Boolean.parseBoolean(value);
-	}
-
-	public int getContentLength() {
-		return contentLength;
-	}
-
-	public static HttpRequest parse(BufferedReader bufferedReader) throws IOException {
-		HttpRequest httpRequest = new HttpRequest();
-		String line;
-		while(!(line = bufferedReader.readLine()).equals("")) {
-			if(line.startsWith("GET") || line.startsWith("POST")) {
-				String[] httpSentence = line.split(" ");
-				httpRequest.method = httpSentence[0];
-				httpRequest.requestUri = httpSentence[1];
-				parseQueryString(httpRequest);
-
-			}else if(line.startsWith("Content-Length")) {
-				httpRequest.contentLength = Integer.parseInt(line.split(": ")[1]);
-			}else if(line.startsWith("Cookie : ")) {
-				httpRequest.cookies = HttpRequestUtils.parseCookies(line.substring(8));
-			}
+	private  void parseQueryString(String queryString) {
+		if(queryString == null || queryString.isEmpty()) {
+			return;
 		}
-
-		final String body =  IOUtils.readData(bufferedReader, httpRequest.contentLength);
-		httpRequest.bodies = HttpRequestUtils.parseQueryString(body);
-		return httpRequest;
-	}
-
-	private static void parseQueryString(HttpRequest httpRequestHeader) {
-		if(httpRequestHeader.requestUri.contains("\\?")) {
-			String queryString = httpRequestHeader.requestUri.split("\\?")[1];
-			httpRequestHeader.queryStrings = HttpRequestUtils.parseQueryString(queryString);
-		}
-	}
-
-	@Override
-	public String toString() {
-		return "HttpRequest{" +
-			"method='" + method + '\'' +
-			", requestUri='" + requestUri + '\'' +
-			", contentLength=" + contentLength +
-			", cookies=" + cookies +
-			", queryStrings=" + queryStrings +
-			'}';
+		parameterMap = HttpRequestUtils.parseQueryString(queryString);
 	}
 
 	public boolean isHtmlFile() {
-		return requestUri.contains(".html");
+		return getPath().contains(".html");
 	}
 
 	public boolean isCssFile() {
-		 return requestUri.endsWith(".css");
+		 return getPath().endsWith(".css");
  	}
 
+	public String getPath() {
+		return headerMap.get("path");
+	}
+
+	public String getHeader(String key) {
+		return headerMap.get(key);
+	}
+
+	public String getParameter(String key) {
+		return parameterMap.get(key);
+	}
 }

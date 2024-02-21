@@ -23,8 +23,8 @@ public class HttpResponse {
 	private static final String LOGIN_FAILED_PAGE = "http://localhost:8080/user/login_failed.html";
 	private static final Logger log = LoggerFactory.getLogger(HttpResponse.class);
 
-	public void handleCssFile(final String filePath) throws IOException {
-		byte[] body = Files.readAllBytes(new File("webapp" + filePath).toPath());
+	public void handleCssFile(final String path) throws IOException {
+		byte[] body = Files.readAllBytes(new File("webapp" + path).toPath());
 		responseCssHeader(body.length);
 		responseBody(body);
 	}
@@ -34,7 +34,7 @@ public class HttpResponse {
 			dos.writeBytes("HTTP/1.1 302 Found\r\n");
 			dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
 			dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-			dos.writeBytes("Set-Cookie: logined=" + (isLoginSuccess ? "true" : "false") + "\r\n");
+			dos.writeBytes("Set-Cookie: logined=" + (isLoginSuccess ? "true" : "false")+";path=/" + "\r\n");
 
 			if(isLoginSuccess) {
 				dos.writeBytes("Location: " + INDEX_PAGE + "\r\n") ;
@@ -47,13 +47,13 @@ public class HttpResponse {
 		}
 	}
 
-	public void handleHtmlFile(String requestUri, boolean isLogin) throws IOException {
-		if(requestUri.startsWith("/user/list") && !isLogin) {
+	public void handleHtmlFile(String path, boolean isLogin) throws IOException {
+		if(path.startsWith("/user/list") && !isLogin) {
 			responseHeader(0, HttpStatus.REDIRECT, LOGIN_PAGE);
 			responseBody( new byte[]{});
 			return;
 		}
-		handleStaticFile(requestUri);
+		handleStaticFile(path);
 	}
 
 	public void handleCreateUser() {
