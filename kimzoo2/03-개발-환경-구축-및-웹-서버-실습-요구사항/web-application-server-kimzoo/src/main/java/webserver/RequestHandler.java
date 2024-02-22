@@ -40,7 +40,6 @@ public class RequestHandler extends Thread {
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			List<String> headerLines = new ArrayList<>();
 			String params = "";
-			boolean isHtml = false;
 
 			// 요청 헤더를 읽는다.
 			while (true) {
@@ -59,8 +58,6 @@ public class RequestHandler extends Thread {
 				headerLines.add(line);
 			}
 
-			isHtml = isHtml(headerLines);
-
 			for (String headerLine : headerLines) {
 				log.info("headerRead = {}", headerLine);
 			}
@@ -76,25 +73,19 @@ public class RequestHandler extends Thread {
 				params = url.substring(index + 1);
 			}
 
-			// 비즈니스 로직을 처리하고 논리적 뷰를 return 해주는 Controller 추가
-			HandlerMapping handlerMapping = new HandlerMapping();
-			Controller controller = handlerMapping.controller(requestPath);
-
 			// 요청 값을 httpRequest에 담는다
 			HttpRequest httpRequest =
 				new HttpRequest(HttpRequestUtils.parseQueryString(params), readCookie(headerLines));
 			HttpResponse httpResponse = new HttpResponse(requestPath);
 
-			if(controller != null && httpMethod.equals(HttpMethod.POST.name())){
-				controller.doPost(httpRequest, httpResponse);
-			}
-			if(controller != null && httpMethod.equals(HttpMethod.GET.name())){
-				controller.doGet(httpRequest, httpResponse);
-			}
+			// 비즈니스 로직을 처리하고 논리적 뷰를 return 해주는 Controller 추가
+			HandlerMapping handlerMapping = new HandlerMapping();
+			Controller controller = handlerMapping.controller(requestPath);
+			controller.handle(httpRequest, httpResponse);
 
 			// responseBody를 생성하여 응답한다.
 			DataOutputStream dos = new DataOutputStream(out);
-			createResponseBody(dos, httpRequest, httpResponse, isHtml);
+			createResponseBody(dos, httpRequest, httpResponse, isHtml(headerLines));
 
 
 		} catch (IOException e) {
