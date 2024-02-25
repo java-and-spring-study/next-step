@@ -19,8 +19,8 @@ public class HttpRequest {
 	private Map<String, String> cookieMap = new HashMap<>();
 	private Map<String, String> parameterMap = new HashMap<>();
 
-	public String getMethod() {
-		return headerMap.get("method");
+	public HttpMethod getMethod() {
+		return HttpMethod.findBy(headerMap.get("method"));
 	}
 
 	public Map<String, String> getParameterMap() {
