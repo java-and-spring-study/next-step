@@ -19,8 +19,10 @@ public class HttpRequest {
 	private Map<String, String> cookieMap = new HashMap<>();
 	private Map<String, String> parameterMap = new HashMap<>();
 
+	private RequestLine requestLine;
+
 	public HttpMethod getMethod() {
-		return HttpMethod.findBy(headerMap.get("method"));
+		return requestLine.getMethod();
 	}
 
 	public Map<String, String> getParameterMap() {
@@ -39,12 +41,10 @@ public class HttpRequest {
 		InputStreamReader inputStreamReader = new InputStreamReader(in);
 		BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 
-		final String firstLine = bufferedReader.readLine();
-		String[] httpSentence = firstLine.split(" ");
-		headerMap.put("method", httpSentence[0]);
-		headerMap.put("path", extractPath(httpSentence[1]));
-		parseQueryString(extractQueryString(httpSentence[1]));
-
+		final String requestLineOrNull = bufferedReader.readLine();
+		requestLine = new RequestLine(requestLineOrNull);
+		parameterMap = requestLine.getParams();
+		
 		String line;
 		while (!(line = bufferedReader.readLine()).equals("")) {
 			String[] pair = line.split(": ");
@@ -78,27 +78,6 @@ public class HttpRequest {
 
 	}
 
-	private String extractQueryString(String requestUri) {
-		if (!requestUri.contains("?")) {
-			return null;
-		}
-		return requestUri.split("\\?")[1];
-	}
-
-	private String extractPath(String requestUri) {
-		if (requestUri.contains("?")) {
-			return requestUri.split("\\?")[0];
-		}
-		return requestUri;
-	}
-
-	private void parseQueryString(String queryString) {
-		if (queryString == null || queryString.isEmpty()) {
-			return;
-		}
-		parameterMap = HttpRequestUtils.parseQueryString(queryString);
-	}
-
 	public boolean isHtmlFile() {
 		return getPath().contains(".html");
 	}
@@ -108,7 +87,7 @@ public class HttpRequest {
 	}
 
 	public String getPath() {
-		return headerMap.get("path");
+		return requestLine.getPath();
 	}
 
 	public String getHeader(String key) {

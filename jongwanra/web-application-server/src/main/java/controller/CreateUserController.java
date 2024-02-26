@@ -20,6 +20,7 @@ public class CreateUserController extends AbstractController {
 	@Override
 	void doPost(HttpRequest httpRequest, HttpResponse httpResponse) {
 		userService.createUser(UserCreateInput.of(httpRequest.getParameterMap()));
+		
 		httpResponse.sendRedirect(INDEX_PATH);
 		httpResponse.processHeaders();
 	}

@@ -13,7 +13,6 @@ public class WebServer {
 	private static final int DEFAULT_PORT = 8080;
 
 	public static void main(String args[]) throws Exception {
-
 		UserService userService = new UserService();
 		HandlerMapper handlerMapper = new HandlerMapper(userService);
 

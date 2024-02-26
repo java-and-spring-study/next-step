@@ -22,4 +22,8 @@ public enum HttpMethod {
 			.orElse(null);
 
 	}
+
+	public boolean isPost() {
+		return this == POST;
+	}
 }
