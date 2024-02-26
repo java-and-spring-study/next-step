@@ -12,14 +12,20 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import db.DataBase;
+import model.User;
 import util.CustomHttpRequestUtil;
 import util.HttpRequestUtils;
+import util.IOUtils;
 import webserver.servlet.Controller;
 
 public class RequestHandler extends Thread {
@@ -37,132 +43,135 @@ public class RequestHandler extends Thread {
 			connection.getPort());
 
 		try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-			List<String> headerLines = new ArrayList<>();
-			String params = "";
+			BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+			String line = br.readLine();
+			log.debug("request line : {}", line);
 
-			// 요청 헤더를 읽는다.
-			while (true) {
-				String line = br.readLine();
-				if ((line == null) || line.isEmpty()) {
-					Optional<String> contentLength = headerLines.stream()
-						.filter(headerLine -> headerLine.contains("Content-Length"))
-						.findAny();
-					if (contentLength.isPresent()) {
-						String[] contentLengthSplit = contentLength.get().split(":");
-						params = readData(br, Integer.parseInt(contentLengthSplit[1].trim()));
-						log.info("params = {}", params);
-					}
-					break;
+			if(line == null){
+				return;
+			}
+			String[] tokens = line.split(" ");
+			boolean logined = false;
+			int contentLength = 0;
+			log.info("request line = {}", line);
+
+			while(!line.equals("")){
+				log.debug("header : {}", line);
+				line = br.readLine();
+				if(line.contains("Content-Length")){
+					contentLength = getContentLength(line);
 				}
-				headerLines.add(line);
+				if(line.contains("logined")){
+					logined = isLogin(line);
+				}
 			}
-
-			for (String headerLine : headerLines) {
-				log.info("headerRead = {}", headerLine);
-			}
-
-			// 요청 url에서 requestPath와 params를 분리함
-			String httpMethod = extreactHttpMethod(headerLines);
-			String url = extreactRequestURL(headerLines);
-			int index = url.indexOf("?");
-			String requestPath = url;
-
-			if (httpMethod.equals(HttpMethod.GET.name()) && (index > 0)) {
-				requestPath = url.substring(0, Math.max(index, 0));
-				params = url.substring(index + 1);
-			}
-
-			// 요청 값을 httpRequest에 담는다
-			HttpRequest httpRequest =
-				new HttpRequest(HttpRequestUtils.parseQueryString(params), readCookie(headerLines));
-			HttpResponse httpResponse = new HttpResponse(requestPath);
 
 			// 비즈니스 로직을 처리하고 논리적 뷰를 return 해주는 Controller 추가
 			HandlerMapping handlerMapping = new HandlerMapping();
 			Controller controller = handlerMapping.controller(requestPath);
 			controller.handle(httpRequest, httpResponse);
+			
+			String url = tokens[1];
+			if("/user/create".equals(url)){
+				String body = IOUtils.readData(br, contentLength);
+				Map<String, String> params =
+					HttpRequestUtils.parseQueryString(body);
+				User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
+				log.debug("User : {}", user);
+				DataBase.addUser(user);
+				DataOutputStream dos = new DataOutputStream(out);
+				response302Header(dos, "/index.html");
 
-			// responseBody를 생성하여 응답한다.
-			DataOutputStream dos = new DataOutputStream(out);
-			createResponseBody(dos, httpRequest, httpResponse, isHtml(headerLines));
+			}else if ("/user/login".equals(url)) {
+				String body = readData(br, contentLength);
+				Map<String, String> params =
+					HttpRequestUtils.parseQueryString(body);
+				//회원 정보 조회
+				User user = new User(params.get("userId"), params.get("password"), params.get("name"),
+					params.get("email"));
+				if (user == null) {
+					responseResource(out, "/user/login_failed.html");
+					return;
+				}
+				// 비밀번호 검증
+				if (user.getPassword().equals(params.get("password"))) {
+					DataOutputStream dos = new DataOutputStream(out);
+					response302LoginSuccessHeader(dos);
+				} else {
+					responseResource(out, "/user/login_failed.html");
+				}
+			}else if("/user/list".equals(url)){
+				if(!logined){
+					responseResource(out, "/user/login.html");
+					return;
+				}
+				Collection<User> users = DataBase.findAll();
+				StringBuilder sb = new StringBuilder();
+				sb.append("<table border='1'>");
+				for (User user : users) {
+					sb.append("<tr>");
+					sb.append(String.format("<td>%s</td>", user.getUserId()));
+					sb.append(String.format("<td>%s</td>", user.getName()));
+					sb.append(String.format("<td>%s</td>", user.getEmail()));
+					sb.append("</tr>");
+				}
+				sb.append("</table>");
+				byte[] body = sb.toString().getBytes();
+				DataOutputStream dos = new DataOutputStream(out);
+				response200Header(dos, body.length);
+				responseBody(dos, body);
 
+			} else if(url.endsWith(".css")) {
+				DataOutputStream dos = new DataOutputStream(out);
+				byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
+				response200Header(dos, body.length);
+				responseBody(dos, body);
+			}else {
+				responseResource(out, url);
+			}
 
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}
 	}
 
-	private boolean isHtml(List<String> headerLines){
-		return headerLines.stream()
-			.anyMatch(headerLine -> headerLine.contains("text/html"));
+	private int getContentLength(String line) {
+		String[] headerTokens = line.split(":");
+		return Integer.parseInt(headerTokens[1].trim());
 	}
 
-	private void createResponseBody(DataOutputStream dos, HttpRequest httpRequest, HttpResponse httpResponse, Boolean isHtml) throws IOException {
-		byte[] body = null;
-		String responsePath = httpResponse.getResponsePath();
-		if(responsePath.contains("redirect:/")){
-			int index = responsePath.indexOf(":");
-			responsePath = responsePath.substring(index+1);
-			body = createViewPath(responsePath);
-			response300Header(dos, body.length, responsePath, httpRequest, isHtml);
-		}else {
-			body = createViewPath(responsePath);
-			response200Header(dos, body.length, httpRequest, httpResponse, isHtml);
-		}
+	private boolean isLogin(String line) {
+		String[] headerTokens = line.split(":");
+		Map<String, String> cookies = HttpRequestUtils.parseCookies(headerTokens[1].trim());
+		String value = cookies.get("logined");
+		if(value == null) return false;
+		return Boolean.parseBoolean(value);
+	}
+
+	private void responseResource(OutputStream out, String url) throws IOException {
+		DataOutputStream dos = new DataOutputStream(out);
+		byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
+		response200Header(dos, body.length);
 		responseBody(dos, body);
 	}
 
-	private String extreactHttpMethod(List<String> lines) {
-		if (!lines.isEmpty()) {
-			return CustomHttpRequestUtil.parseHttpMethod(lines.get(0), " ");
-		}
-		return "";
-	}
-
-	private byte[] createViewPath(String url) throws IOException {
-		String pathName = "./webapp";
-		log.debug("url : {}", url);
-		return Files.readAllBytes(new File(pathName + url).toPath());
-	}
-
-	private String extreactRequestURL(List<String> lines) {
-		if (!lines.isEmpty()) {
-			return CustomHttpRequestUtil.parseURL(lines.get(0), " ");
-		}
-		return "";
-	}
-
-	private String readCookie(List<String> headerLines){
-		return headerLines.stream()
-			.filter(headerLine -> headerLine.contains("Cookie"))
-			.findAny()
-			.orElse("");
-	}
-
-	private void createCookie(DataOutputStream dos, String cookies){
+	private void response302LoginSuccessHeader(DataOutputStream dos){
 		try {
-			dos.writeBytes("Set-cookie:" + cookies + "\r\n");
+			dos.writeBytes("HTTP/1.1 302 OK \r\n");
+			dos.writeBytes("Set-Cookie: logined=true \r\n");
+			dos.writeBytes("Location: /index.html \r\n");
 			dos.writeBytes("\r\n");
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}
 	}
 
-	private void response300Header(
-		DataOutputStream dos, int lengthOfBodyContent, String requestPath, HttpRequest httpRequest, boolean isHtml) {
+	private void response302Header(
+		DataOutputStream dos, String url) {
 		try {
 			dos.writeBytes("HTTP/1.1 302 OK \r\n");
-			if(!isHtml){
-				dos.writeBytes("Content-Type: text/css;charset=utf=8\r\n");
-			}else {
-				dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-			}
-			dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-			dos.writeBytes("Location: " + requestPath + "\r\n");
-			if(!httpRequest.hasCookies()) {
-				createCookie(dos, httpRequest.getCookie());
-			}
+			dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+			dos.writeBytes("Location: " + url + "\r\n");
 			dos.writeBytes("\r\n");
 		} catch (IOException e) {
 			log.error(e.getMessage());
@@ -170,23 +179,24 @@ public class RequestHandler extends Thread {
 	}
 
 	private void response200Header(
-		DataOutputStream dos, int lengthOfBodyContent, HttpRequest httpRequest, HttpResponse httpResponse, boolean isHtml) {
+		DataOutputStream dos, int lengthOfBodyContent) {
 		try {
 			dos.writeBytes("HTTP/1.1 200 OK \r\n");
-			if(!isHtml){
-				dos.writeBytes("Content-Type: text/css;charset=utf=8\r\n");
-			}else {
-				dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-			}
+			dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
 			dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-			if(!httpRequest.hasCookies()) {
-				createCookie(dos, httpRequest.getCookie());
-			}
 			dos.writeBytes("\r\n");
-			if(httpResponse.getStringBuilder() != null){
-				log.info("response = {}", httpResponse.getStringBuilder());
-				dos.writeBytes(String.valueOf(httpResponse.getStringBuilder()));
-			}
+		} catch (IOException e) {
+			log.error(e.getMessage());
+		}
+	}
+
+	private void response200CssHeader(
+		DataOutputStream dos, int lengthOfBodyContent) {
+		try {
+			dos.writeBytes("HTTP/1.1 200 OK \r\n");
+			dos.writeBytes("Content-Type: text/css;charset=utf-8\r\n");
+			dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+			dos.writeBytes("\r\n");
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}
