@@ -2,18 +2,10 @@ package webserver;
 
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import controller.Controller;
-import controller.CreateUserController;
-import controller.DefaultController;
-import controller.IndexController;
-import controller.ListUserController;
-import controller.LoginController;
 import service.UserService;
 
 public class WebServer {
@@ -23,21 +15,7 @@ public class WebServer {
 	public static void main(String args[]) throws Exception {
 
 		UserService userService = new UserService();
-		LoginController loginController = new LoginController(userService);
-		CreateUserController createUserController = new CreateUserController(userService);
-		DefaultController defaultController = new DefaultController();
-
-		Map<String, Controller> handlerMapper = new ConcurrentHashMap<>();
-
-		handlerMapper.put("/user/create", createUserController);
-		handlerMapper.put("/user/form.html", createUserController);
-		handlerMapper.put("/user/login", loginController);
-		handlerMapper.put("/user/login.html", loginController);
-		handlerMapper.put("/user/list", new ListUserController());
-		handlerMapper.put("/index.html", new IndexController());
-		handlerMapper.put("/user/login_failed.html", loginController);
-		handlerMapper.put("/", defaultController);
-		handlerMapper.put("", defaultController);
+		HandlerMapper handlerMapper = new HandlerMapper(userService);
 
 		int port = 0;
 		if (args == null || args.length == 0) {

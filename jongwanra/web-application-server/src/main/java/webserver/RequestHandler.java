@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.file.Files;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +17,9 @@ public class RequestHandler extends Thread {
 	private static final String INDEX_PATH = "/index.html";
 
 	private Socket connection;
-	private final Map<String, Controller> handlerMapper;
+	private final HandlerMapper handlerMapper;
 
-	public RequestHandler(Socket connectionSocket, Map<String, Controller> handlerMapper) {
+	public RequestHandler(Socket connectionSocket, HandlerMapper handlerMapper) {
 		this.connection = connectionSocket;
 		this.handlerMapper = handlerMapper;
 	}
@@ -42,7 +41,7 @@ public class RequestHandler extends Thread {
 				handleCssFile(httpResponse, path);
 				return;
 			}
-			
+
 			Controller handler = handlerMapper.getOrDefault(path, handlerMapper.get("/"));
 			handler.service(httpRequest, httpResponse);
 
