@@ -12,7 +12,6 @@ public class DefaultController extends AbstractController {
 	@Override
 	void doGet(HttpRequest httpRequest, HttpResponse httpResponse) {
 		byte[] body = "Hello World".getBytes();
-		httpResponse.response200Header(body.length);
-		httpResponse.responseBody(body);
+		httpResponse.forward("/index.html");
 	}
 }

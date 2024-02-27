@@ -1,8 +1,5 @@
 package controller;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Map;
 
 import model.User;
@@ -24,18 +21,14 @@ public class LoginController extends AbstractController {
 		Map<String, String> parsedBody = httpRequest.getParameterMap();
 		User user = userService.findOrNullBy(parsedBody.get("userId"));
 
-		httpResponse.sendRedirect(user == null ? LOGIN_FAILED_PATH : INDEX_PATH);
 		if (user != null) {
 			httpResponse.addHeader("Set-Cookie", "logined=true;path=/");
 		}
-		httpResponse.processHeaders();
-		httpResponse.responseBody(new byte[] {});
+		httpResponse.sendRedirect(user == null ? LOGIN_FAILED_PATH : INDEX_PATH);
 	}
 
 	@Override
-	void doGet(HttpRequest httpRequest, HttpResponse httpResponse) throws IOException {
-		byte[] body = Files.readAllBytes(new File("webapp" + httpRequest.getPath()).toPath());
-		httpResponse.response200Header(body.length);
-		httpResponse.responseBody(body);
+	void doGet(HttpRequest httpRequest, HttpResponse httpResponse) {
+		httpResponse.forward("/user/login.html");
 	}
 }

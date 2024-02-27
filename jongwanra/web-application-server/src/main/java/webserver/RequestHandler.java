@@ -1,11 +1,9 @@
 package webserver;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.file.Files;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,22 +35,16 @@ public class RequestHandler extends Thread {
 			HttpResponse httpResponse = new HttpResponse(out);
 			final String path = httpRequest.getPath();
 
-			if (httpRequest.isCssFile()) {
-				handleCssFile(httpResponse, path);
+			Controller handler = handlerMapper.get(path);
+			if (handler == null) {
+				httpResponse.forward(path);
 				return;
 			}
-
-			Controller handler = handlerMapper.getOrDefault(path, handlerMapper.get("/"));
 			handler.service(httpRequest, httpResponse);
 
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}
 	}
-
-	private void handleCssFile(HttpResponse httpResponse, String path) throws IOException {
-		byte[] body = Files.readAllBytes(new File("webapp" + path).toPath());
-		httpResponse.responseCssHeader(body.length);
-		httpResponse.responseBody(body);
-	}
+	
 }

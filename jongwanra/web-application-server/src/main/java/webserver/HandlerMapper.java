@@ -23,7 +23,7 @@ public class HandlerMapper {
 		controllerForUriMap.put("/user/form.html", createUserController);
 		controllerForUriMap.put("/user/login", loginController);
 		controllerForUriMap.put("/user/login.html", loginController);
-		controllerForUriMap.put("/user/list", new ListUserController());
+		controllerForUriMap.put("/user/list.html", new ListUserController());
 		controllerForUriMap.put("/index.html", new IndexController());
 		controllerForUriMap.put("/user/login_failed.html", loginController);
 		controllerForUriMap.put("/", defaultController);
