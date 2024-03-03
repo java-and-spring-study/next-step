@@ -3,140 +3,102 @@ package webserver;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import enums.HttpStatus;
-import model.User;
-
 public class HttpResponse {
 	private final DataOutputStream dos;
+	private Map<String, String> headers = new HashMap<>();
 
-	public HttpResponse(DataOutputStream dos) {
-		this.dos = dos;
+	public HttpResponse(OutputStream outputStream) {
+		this.dos = new DataOutputStream(outputStream);
 	}
 
-	private static final String INDEX_PAGE = "http://localhost:8080/index.html";
-	private static final String LOGIN_PAGE = "http://localhost:8080/user/login.html";
-	private static final String LOGIN_FAILED_PAGE = "http://localhost:8080/user/login_failed.html";
+	private static final String HOST = "http://localhost:8080";
 	private static final Logger log = LoggerFactory.getLogger(HttpResponse.class);
 
-	public void handleCssFile(final String filePath) throws IOException {
-		byte[] body = Files.readAllBytes(new File("webapp" + filePath).toPath());
-		responseCssHeader(body.length);
-		responseBody(body);
+	public void addHeader(String key, String value) {
+		headers.put(key, value);
 	}
 
-	public void responseLoginHeader(int lengthOfBodyContent, boolean isLoginSuccess) {
+	public void forward(String path) {
 		try {
-			dos.writeBytes("HTTP/1.1 302 Found\r\n");
-			dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-			dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-			dos.writeBytes("Set-Cookie: logined=" + (isLoginSuccess ? "true" : "false") + "\r\n");
-
-			if(isLoginSuccess) {
-				dos.writeBytes("Location: " + INDEX_PAGE + "\r\n") ;
-			}else {
-				dos.writeBytes("Location: " + LOGIN_FAILED_PAGE + "\r\n");
+			byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
+			if (path.endsWith(".css")) {
+				headers.put("Content-Type", "text/css");
+			} else if (path.endsWith(".js")) {
+				headers.put("Content-Type", "application/javascript");
+			} else {
+				headers.put("Content-Type", "text/html;charset=utf-8");
 			}
-			dos.writeBytes("\r\n");
-		} catch (IOException e) {
-			log.error(e.getMessage());
-		}
-	}
-
-	public void handleHtmlFile(String requestUri, boolean isLogin) throws IOException {
-		if(requestUri.startsWith("/user/list") && !isLogin) {
-			responseHeader(0, HttpStatus.REDIRECT, LOGIN_PAGE);
-			responseBody( new byte[]{});
-			return;
-		}
-		handleStaticFile(requestUri);
-	}
-
-	public void handleCreateUser() {
-		responseHeader(0, HttpStatus.REDIRECT, INDEX_PAGE);
-		responseBody(new byte[]{});
-	}
-
-	public void handleLogin(User user) {
-		if(user == null) {
-			responseLoginHeader(0, false);
-			responseBody( new byte[]{});
-			return;
-		}
-
-		responseLoginHeader( 0, true);
-		responseBody( new byte[]{});
-	}
-
-	public void handleDefault() {
-		byte[] body = "Hello World".getBytes();
-		response200Header( body.length);
-		responseBody( body);
-	}
-
-	private void responseHeader(int lengthOfBodyContent, HttpStatus httpStatus, final String redirectUrl) {
-		try {
-			dos.writeBytes("HTTP/1.1 "
-				+ httpStatus.getCode()
-				+ " "
-				+ httpStatus.getMessage() + "\r\n");
-			dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-			dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-
-			if(httpStatus.equals(HttpStatus.REDIRECT)) {
-				dos.writeBytes("Location: " + redirectUrl);
-			}
-			dos.writeBytes("\r\n");
-
+			headers.put("Content-Length", body.length + "");
+			response200Header();
+			responseBody(body);
 
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}
 	}
 
-	private void responseBody(byte[] body) {
+	public void forwardBody(String body) {
+		byte[] contents = body.getBytes();
+		headers.put("Content-Type", "text/html;charset=urf8");
+		headers.put("Content-Length", contents.length + "");
+		response200Header();
+		responseBody(contents);
+
+	}
+
+	public void responseBody(byte[] body) {
 		try {
 			dos.write(body, 0, body.length);
+			dos.writeBytes("\r\n");
 			dos.flush();
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}
 	}
-	private void handleStaticFile(final String filePath)  {
-		try{
-			byte[] body = Files.readAllBytes(new File("webapp" + filePath).toPath());
-			responseHeader(body.length, HttpStatus.OK, null);
-			responseBody(body);
-		}catch (IOException e) {
-			log.error(e.getMessage());
-		}
 
-	}
-
-	private void response200Header(int lengthOfBodyContent) {
+	public void sendRedirect(String path) {
 		try {
-			dos.writeBytes("HTTP/1.1 200 OK \r\n");
+			dos.writeBytes("HTTP/1.1 302 Found\r\n");
+			processHeaders();
 			dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-			dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+			dos.writeBytes("Location: " + HOST + path + "\r\n");
+		} catch (IOException e) {
+			log.error(e.getMessage());
+		}
+
+	}
+
+	public void processHeaders() {
+		try {
+			Set<String> keys = headers.keySet();
+
+			for (String key : keys) {
+				dos.writeBytes(key + ": " + headers.get(key) + "\r\n");
+			}
+		} catch (IOException e) {
+			log.error(e.getMessage());
+		}
+
+	}
+	
+	private void response200Header() {
+		try {
+			dos.writeBytes("HTTP/1.1 200 OK \r\n");
+			processHeaders();
 			dos.writeBytes("\r\n");
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}
 	}
 
-	private void responseCssHeader(final int lengthOfBodyContent) {
-		try {
-			dos.writeBytes("HTTP/1.1 200 OK \r\n");
-			dos.writeBytes("Content-Type: text/css;charset=utf-8\r\n");
-			dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-			dos.writeBytes("\r\n");
-		} catch (IOException e) {
-			log.error(e.getMessage());
-		}
-	}
 }
 
