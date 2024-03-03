@@ -12,11 +12,6 @@ public class HttpResponse {
 	private String responsePath;
 	private StringBuilder stringBuilder;
 
-	public HttpResponse(String responsePath, StringBuilder stringBuilder) {
-		this.responsePath = responsePath;
-		this.stringBuilder = stringBuilder;
-	}
-
 	public HttpResponse(String responsePath) {
 		this.responsePath = responsePath;
 	}

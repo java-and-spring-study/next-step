@@ -14,12 +14,9 @@ import webserver.HttpResponse;
 
 @Slf4j
 public class UserListController implements Controller {
-	@Override
-	public void doPost(HttpRequest httpRequest, HttpResponse httpResponse) {
-	}
 
 	@Override
-	public void doGet(HttpRequest httpRequest, HttpResponse httpResponse) {
+	public void handle(HttpRequest httpRequest, HttpResponse httpResponse) {
 		int index = httpRequest.getCookie().indexOf(":");
 		String cookie = httpRequest.getCookie().substring(index+1).trim();
 		log.info("cookie ==== {}", cookie);

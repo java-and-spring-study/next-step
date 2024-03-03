@@ -9,7 +9,7 @@ import webserver.HttpResponse;
 
 public class LogInController implements Controller {
 	@Override
-	public void doPost(HttpRequest httpRequest, HttpResponse httpResponse) {
+	public void handle(HttpRequest httpRequest, HttpResponse httpResponse) {
 		User model = createModel(httpRequest.getRequestArguments());
 		User foundUser = DataBase.findUserById(model.getUserId());
 		if(foundUser == null){
@@ -19,11 +19,6 @@ public class LogInController implements Controller {
 		}
 		httpRequest.setCookies("logined=true");
 		httpResponse.setResponsePath("/index.html");
-	}
-
-	@Override
-	public void doGet(HttpRequest httpRequest, HttpResponse httpResponse) {
-
 	}
 
 	/**
