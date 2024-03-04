@@ -8,6 +8,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,11 @@ public class UpdateUserFormServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String userId = req.getParameter("userId");
+		HttpSession session = req.getSession();
+		User sessionUser = (User)session.getAttribute("user");
+		if(!sessionUser.getUserId().equals(userId)) {
+			throw new IllegalArgumentException("접근할 수 없는 요청입니다.");
+		}
 		req.setAttribute("user", DataBase.findUserById(userId));
 		RequestDispatcher rd = req.getRequestDispatcher("/user/update.jsp");
 		rd.forward(req, resp);
