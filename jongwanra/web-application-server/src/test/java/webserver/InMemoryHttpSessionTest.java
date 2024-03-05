@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,12 +17,11 @@ public class InMemoryHttpSessionTest {
     @Before
     public void setUp() {
         System.out.println("=== before ===");
-        httpSession = new InMemoryHttpSession();
+        httpSession = new InMemoryHttpSession(UUID.randomUUID().toString());
     }
 
     @Test
     public void getId() {
-
         String uuid = httpSession.getId();
         assertThat(uuid).isNotNull();
     }

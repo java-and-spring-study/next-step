@@ -1,15 +1,20 @@
 package webserver;
 
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryHttpSession implements HttpSession {
+    private String sessionId;
     private Map<String, Object> storage = new ConcurrentHashMap<>();
-    
+
+
+    public InMemoryHttpSession(String sessionId) {
+        this.sessionId = sessionId;
+    }
+
     @Override
     public String getId() {
-        return UUID.randomUUID().toString();
+        return sessionId;
     }
 
     @Override

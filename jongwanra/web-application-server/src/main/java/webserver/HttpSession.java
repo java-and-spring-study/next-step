@@ -11,7 +11,7 @@ public interface HttpSession {
     void setAttribute(String name, Object value);
 
     Object getAttribute(String name);
-    
+
     void removeAttribute(String name);
 
     // 현재 세션에 저장되어 있는 모든 값을 삭제
