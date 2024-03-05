@@ -5,7 +5,6 @@ import webserver.HttpResponse;
 
 public interface Controller {
 
-	void doPost(HttpRequest httpRequest, HttpResponse httpResponse);
-	void doGet(HttpRequest httpRequest, HttpResponse httpResponse);
+	void handle(HttpRequest httpRequest, HttpResponse httpResponse);
 
 }

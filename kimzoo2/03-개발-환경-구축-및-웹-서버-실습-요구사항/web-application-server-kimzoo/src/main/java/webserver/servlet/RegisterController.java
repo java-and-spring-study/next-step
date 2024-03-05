@@ -12,17 +12,13 @@ import webserver.HttpResponse;
 public class RegisterController  implements Controller {
 
 	@Override
-	public void doPost(HttpRequest httpRequest, HttpResponse httpResponse) {
+	public void handle(HttpRequest httpRequest, HttpResponse httpResponse) {
 		User model = createModel(httpRequest.getRequestArguments());
 		DataBase.addUser(model);
 		User foundUser = DataBase.findUserById(model.getUserId());
 		log.info("foundUser ={}", foundUser);
 		httpResponse.setResponsePath("redirect:/user/login.html");
 	}
-
-	@Override
-	public void doGet(HttpRequest httpRequest, HttpResponse httpResponse) {}
-
 	/**
 	 * request를 user 객체로 변경한다
 	 * @param requestParams
