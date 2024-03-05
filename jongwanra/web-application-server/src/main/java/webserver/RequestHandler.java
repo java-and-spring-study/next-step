@@ -8,23 +8,19 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import controller.Controller;
+import controller.Servlet;
 
 public class RequestHandler extends Thread {
 	private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
-	private static final String INDEX_PATH = "/index.html";
-
 	private Socket connection;
-	private final HandlerMapper handlerMapper;
+	private final HandlerMapping handlerMapping;
 
-	public RequestHandler(Socket connectionSocket, HandlerMapper handlerMapper) {
+	public RequestHandler(Socket connectionSocket, HandlerMapping handlerMapping) {
 		this.connection = connectionSocket;
-		this.handlerMapper = handlerMapper;
+		this.handlerMapping = handlerMapping;
 	}
 
 	public void run() {
-		log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
-			connection.getPort());
 		try (
 			InputStream in = connection.getInputStream();
 			OutputStream out = connection.getOutputStream();
@@ -35,16 +31,18 @@ public class RequestHandler extends Thread {
 			HttpResponse httpResponse = new HttpResponse(out);
 			final String path = httpRequest.getPath();
 
-			Controller handler = handlerMapper.get(path);
-			if (handler == null) {
+			Servlet servlet = handlerMapping.get(path);
+
+			if (servlet == null) {
 				httpResponse.forward(path);
 				return;
 			}
-			handler.service(httpRequest, httpResponse);
+
+			servlet.service(httpRequest, httpResponse);
 
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}
 	}
-	
+
 }

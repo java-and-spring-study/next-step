@@ -7,7 +7,7 @@ import service.UserService;
 import webserver.HttpRequest;
 import webserver.HttpResponse;
 
-public class LoginController extends AbstractController {
+public class LoginController extends HttpServlet {
 	private static final String LOGIN_FAILED_PATH = "/user/login_failed.html";
 	private static final String INDEX_PATH = "/index.html";
 	private final UserService userService;
@@ -27,8 +27,4 @@ public class LoginController extends AbstractController {
 		httpResponse.sendRedirect(user == null ? LOGIN_FAILED_PATH : INDEX_PATH);
 	}
 
-	@Override
-	void doGet(HttpRequest httpRequest, HttpResponse httpResponse) {
-		httpResponse.forward("/user/login.html");
-	}
 }

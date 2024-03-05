@@ -5,7 +5,7 @@ import service.input.UserCreateInput;
 import webserver.HttpRequest;
 import webserver.HttpResponse;
 
-public class CreateUserController extends AbstractController {
+public class CreateUserController extends HttpServlet {
 	private static final String INDEX_PATH = "/index.html";
 	private final UserService userService;
 
@@ -21,8 +21,4 @@ public class CreateUserController extends AbstractController {
 		httpResponse.processHeaders();
 	}
 
-	@Override
-	void doGet(HttpRequest httpRequest, HttpResponse httpResponse) {
-		httpResponse.forward("/user/form.html");
-	}
 }

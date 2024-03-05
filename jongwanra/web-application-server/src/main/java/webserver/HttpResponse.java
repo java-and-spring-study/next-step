@@ -12,7 +12,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HttpResponse {
+public class HttpResponse extends HttpRequest {
 	private final DataOutputStream dos;
 	private Map<String, String> headers = new HashMap<>();
 
@@ -89,7 +89,7 @@ public class HttpResponse {
 		}
 
 	}
-	
+
 	private void response200Header() {
 		try {
 			dos.writeBytes("HTTP/1.1 200 OK \r\n");

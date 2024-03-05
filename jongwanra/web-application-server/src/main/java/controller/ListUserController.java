@@ -7,13 +7,7 @@ import model.User;
 import webserver.HttpRequest;
 import webserver.HttpResponse;
 
-public class ListUserController extends AbstractController {
-	private static final String INDEX_PATH = "/index.html";
-
-	@Override
-	void doPost(HttpRequest httpRequest, HttpResponse httpResponse) {
-
-	}
+public class ListUserController extends HttpServlet {
 
 	@Override
 	void doGet(HttpRequest httpRequest, HttpResponse httpResponse) {

@@ -44,7 +44,7 @@ public class HttpRequest {
 		final String requestLineOrNull = bufferedReader.readLine();
 		requestLine = new RequestLine(requestLineOrNull);
 		parameterMap = requestLine.getParams();
-		
+
 		String line;
 		while (!(line = bufferedReader.readLine()).equals("")) {
 			String[] pair = line.split(": ");
