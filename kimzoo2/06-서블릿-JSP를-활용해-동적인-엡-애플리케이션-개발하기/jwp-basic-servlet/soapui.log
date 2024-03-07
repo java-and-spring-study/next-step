@@ -1,0 +1,5 @@
+2024-03-07 14:41:01,537 WARN  [DefaultSoapUICore] Missing folder [/Users/kimzoo/ext] for external libraries
+2024-03-07 14:41:01,783 INFO  [DefaultSoapUICore] initialized soapui-settings from [/Users/kimzoo/soapui-settings.xml]
+2024-03-07 14:41:01,998 INFO  [WorkspaceImpl] Loading workspace from [/Users/kimzoo/intellij-soapui-workspace.xml]
+2024-03-07 16:10:07,644 INFO  [WorkspaceImpl] Saved workspace to [/Users/kimzoo/intellij-soapui-workspace.xml]
+2024-03-07 16:10:07,646 INFO  [DefaultSoapUICore] Settings saved to [/Users/kimzoo/soapui-settings.xml]
