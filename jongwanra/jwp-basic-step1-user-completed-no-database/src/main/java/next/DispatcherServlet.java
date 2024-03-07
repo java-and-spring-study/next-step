@@ -26,7 +26,6 @@ public class DispatcherServlet extends HttpServlet {
 	@Override
 	public void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
 		String requestUri = req.getRequestURI();
-
 		Controller controller = rm.findController(requestUri);
 
 		try{
