@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-// @WebServlet("/users/profile") servlet이라 호출 시 HttpServlet을 상속 받았는지 확인함 상속 받지 않으면 에러 발생
+@WebServlet("/users/profile") //servlet이라 호출 시 HttpServlet을 상속 받았는지 확인함 상속 받지 않으면 에러 발생
 public class ProfileController implements Controller {
     private static final long serialVersionUID = 1L;
 

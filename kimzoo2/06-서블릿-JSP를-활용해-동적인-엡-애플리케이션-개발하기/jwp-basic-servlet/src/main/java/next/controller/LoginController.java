@@ -14,6 +14,7 @@ import core.db.DataBase;
 import core.servlet.Controller;
 import next.model.User;
 
+@WebServlet("/users/login")
 public class LoginController implements Controller {
     private static final long serialVersionUID = 1L;
 

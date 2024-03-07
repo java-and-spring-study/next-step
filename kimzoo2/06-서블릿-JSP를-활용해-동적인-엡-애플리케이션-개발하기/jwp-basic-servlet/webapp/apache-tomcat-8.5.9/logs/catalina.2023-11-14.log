@@ -1,0 +1,97 @@
+14-Nov-2023 15:42:52.278 정보 [main] org.apache.catalina.startup.VersionLoggerListener.log Server version:        Apache Tomcat/8.5.9
+14-Nov-2023 15:42:52.285 정보 [main] org.apache.catalina.startup.VersionLoggerListener.log Server built:          Dec 5 2016 20:18:12 UTC
+14-Nov-2023 15:42:52.285 정보 [main] org.apache.catalina.startup.VersionLoggerListener.log Server number:         8.5.9.0
+14-Nov-2023 15:42:52.286 정보 [main] org.apache.catalina.startup.VersionLoggerListener.log OS Name:               Mac OS X
+14-Nov-2023 15:42:52.286 정보 [main] org.apache.catalina.startup.VersionLoggerListener.log OS Version:            13.0
+14-Nov-2023 15:42:52.286 정보 [main] org.apache.catalina.startup.VersionLoggerListener.log Architecture:          x86_64
+14-Nov-2023 15:42:52.287 정보 [main] org.apache.catalina.startup.VersionLoggerListener.log Java Home:             /Users/kimzoo/Library/Java/JavaVirtualMachines/corretto-17.0.7/Contents/Home
+14-Nov-2023 15:42:52.287 정보 [main] org.apache.catalina.startup.VersionLoggerListener.log JVM Version:           17.0.7+7-LTS
+14-Nov-2023 15:42:52.287 정보 [main] org.apache.catalina.startup.VersionLoggerListener.log JVM Vendor:            Amazon.com Inc.
+14-Nov-2023 15:42:52.287 정보 [main] org.apache.catalina.startup.VersionLoggerListener.log CATALINA_BASE:         /Users/kimzoo/study/apache-tomcat-8.5.9
+14-Nov-2023 15:42:52.287 정보 [main] org.apache.catalina.startup.VersionLoggerListener.log CATALINA_HOME:         /Users/kimzoo/study/apache-tomcat-8.5.9
+14-Nov-2023 15:42:52.297 정보 [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.util.logging.config.file=/Users/kimzoo/study/apache-tomcat-8.5.9/conf/logging.properties
+14-Nov-2023 15:42:52.298 정보 [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager
+14-Nov-2023 15:42:52.298 정보 [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djdk.tls.ephemeralDHKeySize=2048
+14-Nov-2023 15:42:52.298 정보 [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.protocol.handler.pkgs=org.apache.catalina.webresources
+14-Nov-2023 15:42:52.298 정보 [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Dcatalina.base=/Users/kimzoo/study/apache-tomcat-8.5.9
+14-Nov-2023 15:42:52.298 정보 [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Dcatalina.home=/Users/kimzoo/study/apache-tomcat-8.5.9
+14-Nov-2023 15:42:52.298 정보 [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.io.tmpdir=/Users/kimzoo/study/apache-tomcat-8.5.9/temp
+14-Nov-2023 15:42:52.299 정보 [main] org.apache.catalina.core.AprLifecycleListener.lifecycleEvent The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: /Users/kimzoo/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:.
+14-Nov-2023 15:42:52.379 정보 [main] org.apache.coyote.AbstractProtocol.init Initializing ProtocolHandler ["http-nio-8080"]
+14-Nov-2023 15:42:52.444 정보 [main] org.apache.tomcat.util.net.NioSelectorPool.getSharedSelector Using a shared selector for servlet write/read
+14-Nov-2023 15:42:52.449 정보 [main] org.apache.coyote.AbstractProtocol.init Initializing ProtocolHandler ["ajp-nio-8009"]
+14-Nov-2023 15:42:52.453 심각 [main] org.apache.coyote.AbstractProtocol.init Failed to initialize end point associated with ProtocolHandler ["ajp-nio-8009"]
+ java.lang.IllegalArgumentException: timeout < 0
+	at java.base/sun.nio.ch.ServerSocketAdaptor.setSoTimeout(ServerSocketAdaptor.java:162)
+	at org.apache.tomcat.util.net.NioEndpoint.bind(NioEndpoint.java:212)
+	at org.apache.tomcat.util.net.AbstractEndpoint.init(AbstractEndpoint.java:941)
+	at org.apache.tomcat.util.net.AbstractJsseEndpoint.init(AbstractJsseEndpoint.java:237)
+	at org.apache.coyote.AbstractProtocol.init(AbstractProtocol.java:558)
+	at org.apache.catalina.connector.Connector.initInternal(Connector.java:968)
+	at org.apache.catalina.util.LifecycleBase.init(LifecycleBase.java:107)
+	at org.apache.catalina.core.StandardService.initInternal(StandardService.java:549)
+	at org.apache.catalina.util.LifecycleBase.init(LifecycleBase.java:107)
+	at org.apache.catalina.core.StandardServer.initInternal(StandardServer.java:875)
+	at org.apache.catalina.util.LifecycleBase.init(LifecycleBase.java:107)
+	at org.apache.catalina.startup.Catalina.load(Catalina.java:606)
+	at org.apache.catalina.startup.Catalina.load(Catalina.java:629)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.apache.catalina.startup.Bootstrap.load(Bootstrap.java:311)
+	at org.apache.catalina.startup.Bootstrap.main(Bootstrap.java:494)
+
+14-Nov-2023 15:42:52.455 심각 [main] org.apache.catalina.core.StandardService.initInternal Failed to initialize connector [Connector[AJP/1.3-8009]]
+ org.apache.catalina.LifecycleException: Failed to initialize component [Connector[AJP/1.3-8009]]
+	at org.apache.catalina.util.LifecycleBase.init(LifecycleBase.java:112)
+	at org.apache.catalina.core.StandardService.initInternal(StandardService.java:549)
+	at org.apache.catalina.util.LifecycleBase.init(LifecycleBase.java:107)
+	at org.apache.catalina.core.StandardServer.initInternal(StandardServer.java:875)
+	at org.apache.catalina.util.LifecycleBase.init(LifecycleBase.java:107)
+	at org.apache.catalina.startup.Catalina.load(Catalina.java:606)
+	at org.apache.catalina.startup.Catalina.load(Catalina.java:629)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.apache.catalina.startup.Bootstrap.load(Bootstrap.java:311)
+	at org.apache.catalina.startup.Bootstrap.main(Bootstrap.java:494)
+Caused by: org.apache.catalina.LifecycleException: Protocol handler initialization failed
+	at org.apache.catalina.connector.Connector.initInternal(Connector.java:970)
+	at org.apache.catalina.util.LifecycleBase.init(LifecycleBase.java:107)
+	... 12 more
+Caused by: java.lang.IllegalArgumentException: timeout < 0
+	at java.base/sun.nio.ch.ServerSocketAdaptor.setSoTimeout(ServerSocketAdaptor.java:162)
+	at org.apache.tomcat.util.net.NioEndpoint.bind(NioEndpoint.java:212)
+	at org.apache.tomcat.util.net.AbstractEndpoint.init(AbstractEndpoint.java:941)
+	at org.apache.tomcat.util.net.AbstractJsseEndpoint.init(AbstractJsseEndpoint.java:237)
+	at org.apache.coyote.AbstractProtocol.init(AbstractProtocol.java:558)
+	at org.apache.catalina.connector.Connector.initInternal(Connector.java:968)
+	... 13 more
+
+14-Nov-2023 15:42:52.456 정보 [main] org.apache.catalina.startup.Catalina.load Initialization processed in 953 ms
+14-Nov-2023 15:42:52.534 정보 [main] org.apache.catalina.core.StandardService.startInternal Starting service Catalina
+14-Nov-2023 15:42:52.535 정보 [main] org.apache.catalina.core.StandardEngine.startInternal Starting Servlet Engine: Apache Tomcat/8.5.9
+14-Nov-2023 15:42:52.550 정보 [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deploying web application directory /Users/kimzoo/study/apache-tomcat-8.5.9/webapps/chap04
+14-Nov-2023 15:42:53.052 정보 [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deployment of web application directory /Users/kimzoo/study/apache-tomcat-8.5.9/webapps/chap04 has finished in 500 ms
+14-Nov-2023 15:42:53.055 정보 [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deploying web application directory /Users/kimzoo/study/apache-tomcat-8.5.9/webapps/chap03
+14-Nov-2023 15:42:53.101 정보 [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deployment of web application directory /Users/kimzoo/study/apache-tomcat-8.5.9/webapps/chap03 has finished in 47 ms
+14-Nov-2023 15:42:53.101 정보 [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deploying web application directory /Users/kimzoo/study/apache-tomcat-8.5.9/webapps/chap02
+14-Nov-2023 15:42:53.144 정보 [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deployment of web application directory /Users/kimzoo/study/apache-tomcat-8.5.9/webapps/chap02 has finished in 42 ms
+14-Nov-2023 15:42:53.144 정보 [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deploying web application directory /Users/kimzoo/study/apache-tomcat-8.5.9/webapps/docs
+14-Nov-2023 15:42:53.182 정보 [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deployment of web application directory /Users/kimzoo/study/apache-tomcat-8.5.9/webapps/docs has finished in 38 ms
+14-Nov-2023 15:42:53.183 정보 [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deploying web application directory /Users/kimzoo/study/apache-tomcat-8.5.9/webapps/chap09
+14-Nov-2023 15:42:53.215 정보 [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deployment of web application directory /Users/kimzoo/study/apache-tomcat-8.5.9/webapps/chap09 has finished in 31 ms
+14-Nov-2023 15:42:53.215 정보 [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deploying web application directory /Users/kimzoo/study/apache-tomcat-8.5.9/webapps/manager
+14-Nov-2023 15:42:53.277 정보 [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deployment of web application directory /Users/kimzoo/study/apache-tomcat-8.5.9/webapps/manager has finished in 61 ms
+14-Nov-2023 15:42:53.277 정보 [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deploying web application directory /Users/kimzoo/study/apache-tomcat-8.5.9/webapps/examples
+14-Nov-2023 15:42:53.705 정보 [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deployment of web application directory /Users/kimzoo/study/apache-tomcat-8.5.9/webapps/examples has finished in 428 ms
+14-Nov-2023 15:42:53.705 정보 [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deploying web application directory /Users/kimzoo/study/apache-tomcat-8.5.9/webapps/ROOT
+14-Nov-2023 15:42:53.749 정보 [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deployment of web application directory /Users/kimzoo/study/apache-tomcat-8.5.9/webapps/ROOT has finished in 44 ms
+14-Nov-2023 15:42:53.750 정보 [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deploying web application directory /Users/kimzoo/study/apache-tomcat-8.5.9/webapps/host-manager
+14-Nov-2023 15:42:53.789 정보 [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deployment of web application directory /Users/kimzoo/study/apache-tomcat-8.5.9/webapps/host-manager has finished in 39 ms
+14-Nov-2023 15:42:53.789 정보 [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deploying web application directory /Users/kimzoo/study/apache-tomcat-8.5.9/webapps/.idea
+14-Nov-2023 15:42:53.859 정보 [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deployment of web application directory /Users/kimzoo/study/apache-tomcat-8.5.9/webapps/.idea has finished in 70 ms
+14-Nov-2023 15:42:53.868 정보 [main] org.apache.coyote.AbstractProtocol.start Starting ProtocolHandler [http-nio-8080]
+14-Nov-2023 15:42:53.875 정보 [main] org.apache.catalina.startup.Catalina.start Server startup in 1418 ms
