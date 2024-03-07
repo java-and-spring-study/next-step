@@ -34,7 +34,7 @@ public class HttpResponseTest {
 		HttpResponse response = new HttpResponse(createOutputStream("Http_Cookie.txt"));
 		response.addHeader("Set-Cookie", "logined=true");
 		response.sendRedirect("/index.html");
-		
+
 	}
 
 	private OutputStream createOutputStream(String filename) throws IOException {

@@ -14,7 +14,7 @@ public class WebServer {
 
 	public static void main(String args[]) throws Exception {
 		UserService userService = new UserService();
-		HandlerMapper handlerMapper = new HandlerMapper(userService);
+		HandlerMapping handlerMapping = new HandlerMapping(userService);
 
 		int port = 0;
 		if (args == null || args.length == 0) {
@@ -23,13 +23,12 @@ public class WebServer {
 			port = Integer.parseInt(args[0]);
 		}
 
-		// 서버소켓을 생성한다. 웹서버는 기본적으로 8080번 포트를 사용한다.
-
 		try (ServerSocket listenSocket = new ServerSocket(port)) {
-			// 클라이언트가 연결될때까지 대기한다.
+			// 클라이언트가 연결될 때 까지 대기한다.
 			Socket connection;
 			while ((connection = listenSocket.accept()) != null) {
-				RequestHandler requestHandler = new RequestHandler(connection, handlerMapper);
+				// 연결이 되고 나면 해당 소켓을 RequestHandler에 위임한다.
+				RequestHandler requestHandler = new RequestHandler(connection, handlerMapping);
 				requestHandler.start();
 			}
 		}
