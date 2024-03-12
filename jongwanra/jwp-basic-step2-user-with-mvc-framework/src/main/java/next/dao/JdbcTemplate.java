@@ -10,13 +10,13 @@ import next.model.User;
 // 변하지 않는 라이브러리 부분,
 // 변하지 않는 코드를 여기에다가 작성하자.
 public abstract class JdbcTemplate {
-	public void update(User user) throws SQLException {
+	public void update() throws SQLException {
 		Connection connection = null;
 		PreparedStatement preparedStatement = null;
 		try {
 			connection = ConnectionManager.getConnection();
 			preparedStatement = connection.prepareStatement(createQuery());
-			setValues(user, preparedStatement);
+			setValues(preparedStatement);
 			preparedStatement.executeUpdate();
 		} finally {
 			if (preparedStatement != null) {
@@ -29,7 +29,7 @@ public abstract class JdbcTemplate {
 		}
 	}
 
-	protected abstract void setValues(User user, PreparedStatement preparedStatement) throws SQLException;
+	protected abstract void setValues(PreparedStatement preparedStatement) throws SQLException;
 	protected abstract String createQuery();
 
 
