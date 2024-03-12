@@ -22,9 +22,38 @@ public abstract class JdbcTemplate {
         }
     }
 
+    public void update(String sql, Object... values) {
+        try (Connection connection = ConnectionManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            PreparedStatementSetter preparedStatementSetter = createPreparedStatementSetter(values);
+            preparedStatementSetter.setValues(preparedStatement);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     public <T> List<T> query(String sql, PreparedStatementSetter preparedStatementSetter, RowMapper<T> rowMapper) {
         try (Connection connection = ConnectionManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatementSetter.setValues(preparedStatement);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            List<T> result = new ArrayList<>();
+            while (resultSet.next()) {
+                result.add(rowMapper.mapRow(resultSet));
+            }
+
+            return result;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... values) {
+        try (Connection connection = ConnectionManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            PreparedStatementSetter preparedStatementSetter = createPreparedStatementSetter(values);
             preparedStatementSetter.setValues(preparedStatement);
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -54,6 +83,31 @@ public abstract class JdbcTemplate {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... values) {
+        try (
+                Connection connection = ConnectionManager.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        ) {
+            PreparedStatementSetter preparedStatementSetter = createPreparedStatementSetter(values);
+            preparedStatementSetter.setValues(preparedStatement);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (!resultSet.next()) {
+                return null;
+            }
+            return rowMapper.mapRow(resultSet);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private PreparedStatementSetter createPreparedStatementSetter(Object... values) {
+        return (preparedStatement -> {
+            for (int index = 0; index < values.length; index++) {
+                preparedStatement.setString(index + 1, String.valueOf(values[index]));
+            }
+        });
     }
 
 
