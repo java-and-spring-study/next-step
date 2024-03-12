@@ -14,6 +14,12 @@ public class UserDao {
     public void insert(User user) {
         try{
             JdbcTemplate jdbcTemplate = new JdbcTemplate() {
+
+                @Override
+                protected Object mapRow(ResultSet resultSet) throws SQLException {
+                    return null;
+                }
+
                 @Override
                 protected void setValues(PreparedStatement preparedStatement) throws SQLException{
                     preparedStatement.setString(1, user.getUserId());
@@ -36,6 +42,12 @@ public class UserDao {
 
     public void update(User user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate() {
+
+            @Override
+            protected Object mapRow(ResultSet resultSet) throws SQLException {
+                return null;
+            }
+
             @Override
             protected void setValues(PreparedStatement preparedStatement) throws SQLException {
                 preparedStatement.setString(1, user.getPassword());
@@ -59,7 +71,7 @@ public class UserDao {
 
     public List<User> findAll() throws SQLException {
 
-        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
 
             @Override
             protected Object mapRow(ResultSet resultSet) throws SQLException {
@@ -78,14 +90,14 @@ public class UserDao {
             }
         };
 
-        return selectJdbcTemplate.query()
+        return jdbcTemplate.query()
             .stream()
             .map(obj -> (User) obj)
             .collect(Collectors.toList());
     }
 
     public User findByUserId(String userId) throws SQLException {
-            SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
 
                 @Override
                 protected Object mapRow(ResultSet resultSet) throws SQLException {
@@ -103,6 +115,6 @@ public class UserDao {
                 }
             };
 
-        return (User) selectJdbcTemplate.queryForObject();
+        return (User) jdbcTemplate.queryForObject();
     }
 }
