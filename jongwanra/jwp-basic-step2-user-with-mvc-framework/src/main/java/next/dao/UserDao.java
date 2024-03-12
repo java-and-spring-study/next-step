@@ -1,120 +1,69 @@
 package next.dao;
 
+import next.model.User;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import next.model.User;
 
 public class UserDao {
 
     public void insert(User user) {
-        try{
-            JdbcTemplate jdbcTemplate = new JdbcTemplate() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate() {
+        };
 
-                @Override
-                protected Object mapRow(ResultSet resultSet) throws SQLException {
-                    return null;
-                }
+        PreparedStatementSetter preparedStatementSetter = preparedStatement -> {
+            preparedStatement.setString(1, user.getUserId());
+            preparedStatement.setString(2, user.getPassword());
+            preparedStatement.setString(3, user.getName());
+            preparedStatement.setString(4, user.getEmail());
+        };
 
-                @Override
-                protected void setValues(PreparedStatement preparedStatement) throws SQLException{
-                    preparedStatement.setString(1, user.getUserId());
-                    preparedStatement.setString(2, user.getPassword());
-                    preparedStatement.setString(3, user.getName());
-                    preparedStatement.setString(4, user.getEmail());
-                }
+        final String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
 
-                @Override
-                protected String createQuery() {
-                    return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-                }
-            };
-
-            jdbcTemplate.update();
-        }catch (SQLException e) {
-            throw new RuntimeException();
-        }
+        jdbcTemplate.update(sql, preparedStatementSetter);
     }
 
     public void update(User user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate() {
-
-            @Override
-            protected Object mapRow(ResultSet resultSet) throws SQLException {
-                return null;
-            }
-
-            @Override
-            protected void setValues(PreparedStatement preparedStatement) throws SQLException {
-                preparedStatement.setString(1, user.getPassword());
-                preparedStatement.setString(2, user.getEmail());
-                preparedStatement.setString(3, user.getName());
-                preparedStatement.setString(4, user.getUserId());
-            }
-
-            @Override
-            protected String createQuery() {
-                return "UPDATE USERS SET password=?, email=?, name=? WHERE userId=?";
-            }
         };
 
-        try {
-            jdbcTemplate.update();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        final String sql = "UPDATE USERS SET password=?, email=?, name=? WHERE userId=?";
+
+        PreparedStatementSetter preparedStatementSetter = (PreparedStatement preparedStatement) -> {
+            preparedStatement.setString(1, user.getPassword());
+            preparedStatement.setString(2, user.getEmail());
+            preparedStatement.setString(3, user.getName());
+            preparedStatement.setString(4, user.getUserId());
+        };
+        jdbcTemplate.update(sql, preparedStatementSetter);
     }
 
-    public List<User> findAll() throws SQLException {
+    public List<User> findAll() {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate() {
-
-            @Override
-            protected Object mapRow(ResultSet resultSet) throws SQLException {
-                return new User(resultSet.getString("userId"), resultSet.getString("password"), resultSet.getString("name"),
-                    resultSet.getString("email"));
-            }
-
-            @Override
-            protected String createQuery() {
-                return "SELECT * FROM USERS";
-            }
-
-            @Override
-            protected void setValues(PreparedStatement preparedStatement) {
-
-            }
         };
 
-        return jdbcTemplate.query()
-            .stream()
-            .map(obj -> (User) obj)
-            .collect(Collectors.toList());
+        PreparedStatementSetter preparedStatementSetter = (preparedStatement) -> {
+        };
+        RowMapper<User> rowMapper = (resultSet) -> new User(resultSet.getString("userId"), resultSet.getString("password"), resultSet.getString("name"),
+                resultSet.getString("email"));
+        final String sql = "SELECT * FROM USERS";
+
+        return jdbcTemplate.query(sql, preparedStatementSetter, rowMapper);
     }
 
-    public User findByUserId(String userId) throws SQLException {
+    public User findByUserId(String userId) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate() {
+        };
 
-                @Override
-                protected Object mapRow(ResultSet resultSet) throws SQLException {
-                    return new User(resultSet.getString("userId"), resultSet.getString("password"), resultSet.getString("name"), resultSet.getString("email"));
-                }
-
-                @Override
-                protected String createQuery() {
-                    return "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-                }
-
-                @Override
-                protected void setValues(PreparedStatement preparedStatement) throws SQLException {
-                    preparedStatement.setString(1, userId);
-                }
-            };
-
-        return (User) jdbcTemplate.queryForObject();
+        final String sql = "SELECT userId, password, name, email FROM USERS WHERE userId=?";
+        RowMapper<User> rowMapper = (ResultSet resultSet) -> new User(resultSet.getString("userId"), resultSet.getString("password"), resultSet.getString("name"), resultSet.getString("email"));
+        PreparedStatementSetter preparedStatementSetter = preparedStatement -> {
+            preparedStatement.setString(1, userId);
+        };
+        return jdbcTemplate.queryForObject(sql, preparedStatementSetter, rowMapper);
     }
+
+
 }
