@@ -1,5 +1,8 @@
 package core.mvc;
 
+import java.util.Map;
+import java.util.Set;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,12 +16,17 @@ public class JspView implements View {
 	}
 
 	@Override
-	public void render(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws
+		Exception {
 		if (uri.startsWith(DEFAULT_REDIRECT_PREFIX)) {
 			String removedPrefix = uri.substring(DEFAULT_REDIRECT_PREFIX.length());
-			System.out.println("removedPrefix = " + removedPrefix);
 			response.sendRedirect(removedPrefix);
 			return;
+		}
+
+		Set<String> keys = model.keySet();
+		for (String key : keys) {
+			request.setAttribute(key, model.get(key));
 		}
 
 		RequestDispatcher rd = request.getRequestDispatcher(uri);

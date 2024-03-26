@@ -1,26 +1,33 @@
 package core.mvc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.PrintWriter;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.PrintWriter;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JsonView implements View {
-    private Object result;
 
-    public JsonView(Object result) {
-        this.result = result;
-    }
+	@Override
+	public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws
+		Exception {
+		ObjectMapper objectMapper = new ObjectMapper();
+		response.setContentType("application/json");
+		response.setCharacterEncoding("utf-8");
+		PrintWriter writer = response.getWriter();
+		writer.write(objectMapper.writeValueAsString(model));
+	}
 
-    @Override
-    public void render(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        response.setContentType("application/json");
-        response.setCharacterEncoding("utf-8");
-        PrintWriter writer = response.getWriter();
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        writer.write(objectMapper.writeValueAsString(result));
-    }
+	// private Map<String, Object> createModel(HttpServletRequest request) {
+	// 	Enumeration<String> names = request.getAttributeNames();
+	// 	Map<String, Object> model = new HashMap<>();
+	// 	while (names.hasMoreElements()) {
+	// 		String name = names.nextElement();
+	// 		model.put(name, request.getAttribute(name));
+	// 	}
+	// 	return model;
+	// }
 
 }

@@ -1,24 +1,21 @@
 package next.controller;
 
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import core.mvc.Controller;
-import core.mvc.JsonView;
+import core.mvc.AbstractController;
 import core.mvc.ModelAndView;
 import next.dao.AnswerDao;
-import next.model.Answer;
 
-public class ListAnswerController implements Controller {
+public class AddAnswerController extends AbstractController {
 	private AnswerDao answerDao = new AnswerDao();
 
 	@Override
 	public ModelAndView execute(HttpServletRequest req, HttpServletResponse resp) throws Exception {
-
-		List<Answer> answers = answerDao.findAll();
-
-		return new ModelAndView(new JsonView()).addObject("answers", answers);
+		// Answer answer = new Answer(Long.parseLong(req.getParameter("questionId")), req.getParameter("writer"),
+		// 	req.getParameter("contents"));
+		//
+		// answerDao.insert(answer);
+		return super.execute(req, resp);
 	}
 }
