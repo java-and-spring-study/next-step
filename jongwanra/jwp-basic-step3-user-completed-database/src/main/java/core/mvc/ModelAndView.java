@@ -4,6 +4,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * JsonView, JspView
+ * JsonView => Header, Filter 불필요한 정보까지 보내게 됨.
+ */
 public class ModelAndView {
 
 	private View view;
