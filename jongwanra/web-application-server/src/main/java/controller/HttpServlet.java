@@ -6,7 +6,7 @@ import webserver.HttpMethod;
 import webserver.HttpRequest;
 import webserver.HttpResponse;
 
-public abstract class HttpServlet implements Servlet {
+public abstract class HttpServlet implements Controller {
 	@Override
 	public void service(HttpRequest httpServletRequest, HttpResponse httpServletResponse) throws
 		IOException {
