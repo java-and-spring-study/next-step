@@ -9,7 +9,6 @@
 </head>
 <body>
 <%@ include file="/include/navigation.jspf" %>
-
 <div class="container" id="main">
 	<div class="col-md-12 col-sm-12 col-lg-10 col-lg-offset-1">
 		<div class="panel panel-default">
@@ -53,9 +52,8 @@
 
 				<div class="qna-comment">
 					<div class="qna-comment-slipp">
-						<p class="qna-comment-count"><strong>${question.countOfComment}</strong>개의 의견</p>
+						<p class="qna-comment-count"><strong class="comment-count">${question.countOfComment}</strong>개의 의견</p>
 						<div class="qna-comment-slipp-articles">
-
 							<c:forEach var="answer" items="${answers}">
 								<article class="article">
 									<div class="article-header">
@@ -87,17 +85,17 @@
 
 							</c:forEach>
 							<div class="answerWrite">
-                            <form name="answer"  action="/api/qna/addAnswer" method="post">
-								<input type="hidden" name="questionId" value="${question.questionId}">
-								<div class="form-group col-lg-4" style="padding-top:10px;">
-									<input class="form-control" id="writer" name="writer" placeholder="이름">
-								</div>
-								<div class="form-group col-lg-12">
-									<textarea name="contents" id="contents" class="form-control" placeholder=""></textarea>
-								</div>
-								<input class="btn btn-success pull-right" type="submit" value="답변하기" />
-								<div class="clearfix" />
-							</form>
+								<form name="answer" method="post">
+									<input type="hidden" name="questionId" value="${question.questionId}">
+									<div class="form-group col-lg-4" style="padding-top:10px;">
+										<input class="form-control" id="writer" name="writer" placeholder="이름">
+									</div>
+									<div class="form-group col-lg-12">
+										<textarea name="contents" id="contents" class="form-control" placeholder=""></textarea>
+									</div>
+									<input id="answer-submit-btn" class="btn btn-success pull-right" type="submit" value="답변하기" />
+									<div class="clearfix" />
+								</form>
 							</div>
 						</div>
 					</div>
@@ -106,6 +104,7 @@
 		</div>
 	</div>
 </div>
+
 
 <script type="text/template" id="answerTemplate">
 	<article class="article">
@@ -137,5 +136,46 @@
 	</article>
 </script>
 <%@ include file="/include/footer.jspf" %>
+<script>
+	$("#answer-submit-btn").click(addAnswer);
+
+	function addAnswer(e) {
+		e.preventDefault();
+		var queryString = $("form[name=answer]").serialize();
+
+		$.ajax({
+			type : 'post',
+			url : '/api/qna/addAnswer',
+			data : queryString,
+			dataType : 'json',
+			error: onError,
+			success : onSuccess,
+		});
+	}
+
+	function onSuccess(json, status){
+		var answer = json.answer;
+		var answerTemplate = $("#answerTemplate").html();
+		var template = answerTemplate.format(answer.writer, new Date(answer.createdDate), answer.contents, answer.answerId, answer.answerId);
+		$(".qna-comment-slipp-articles").prepend(template);
+
+		let prevCommentCount = $(".comment-count").text();
+		$(".comment-count").text(Number(prevCommentCount) + 1);
+	}
+
+	function onError(xhr, status) {
+		alert("error");
+	}
+
+	String.prototype.format = function() {
+		var args = arguments;
+		return this.replace(/{(\d+)}/g, function(match, number) {
+			return typeof args[number] != 'undefined'
+					? args[number]
+					: match
+					;
+		});
+	};
+</script>
 </body>
 </html>

@@ -1,9 +1,7 @@
-// $(".qna-comment").on("click", ".answerWrite input[type=submit]", addAnswer);
-$(".answerWrite input[type=submit]").click(addAnswer);
+$("#answer-submit-btn").click(addAnswer);
 
 function addAnswer(e) {
   e.preventDefault();
-
   var queryString = $("form[name=answer]").serialize();
 
   $.ajax({
@@ -17,6 +15,8 @@ function addAnswer(e) {
 }
 
 function onSuccess(json, status){
+  alert("json: ", json);
+  console.log("json::", json)
   var answer = json.answer;
   var answerTemplate = $("#answerTemplate").html();
   var template = answerTemplate.format(answer.writer, new Date(answer.createdDate), answer.contents, answer.answerId, answer.answerId);

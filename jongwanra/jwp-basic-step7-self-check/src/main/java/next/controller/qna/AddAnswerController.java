@@ -29,6 +29,6 @@ public class AddAnswerController extends AbstractController {
         answerDao.insert(answer);
         questionDao.increaseCountOfComment(questionId);
 
-        return jspView("redirect:/qna/show?questionId=" + questionId);
+        return jsonView().addObject("answer", answer);
     }
 }
