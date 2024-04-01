@@ -54,7 +54,7 @@
 					<div class="qna-comment-slipp">
 						<p class="qna-comment-count"><strong class="comment-count">${question.countOfComment}</strong>개의 의견</p>
 						<div class="qna-comment-slipp-articles">
-							<c:forEach var="answer" items="${answers}">
+							<c:forEach var="answer" items="${answers}" varStatus="status">
 								<article class="article">
 									<div class="article-header">
 										<div class="article-header-thumb">
@@ -74,7 +74,7 @@
 												<a class="link-modify-article" href="/api/qna/updateAnswer?answerId=${answer.answerId}">수정</a>
 											</li>
 											<li>
-												<form class="form-delete" action="/api/qna/deleteAnswer" method="POST">
+												<form class="form-delete" method="POST">
 													<input type="hidden" name="answerId" value="${answer.answerId}">
 													<button type="submit" class="link-delete-article">삭제</button>
 												</form>
@@ -126,7 +126,7 @@
 				<a class="link-modify-article" href="/api/qna/updateAnswer/{3}">수정</a>
 			</li>
 			<li>
-				<form class="form-delete" action="/api/qna/deleteAnswer" method="POST">
+				<form class="form-delete" method="POST">
 					<input type="hidden" name="answerId" value="{4}" />
 					<button type="submit" class="link-delete-article">삭제</button>
 				</form>
@@ -137,34 +137,61 @@
 </script>
 <%@ include file="/include/footer.jspf" %>
 <script>
-	$("#answer-submit-btn").click(addAnswer);
+	$(document).ready(() => {
+		$("#answer-submit-btn").click(addAnswer);
 
-	function addAnswer(e) {
+		function addAnswer(e) {
+			e.preventDefault();
+			var queryString = $("form[name=answer]").serialize();
+
+			$.ajax({
+				type : 'post',
+				url : '/api/qna/addAnswer',
+				data : queryString,
+				dataType : 'json',
+				error: onError,
+				success : onSuccess
+			});
+		}
+
+		function onSuccess(json, status){
+			var answer = json.answer;
+			var answerTemplate = $("#answerTemplate").html();
+			var template = answerTemplate.format(answer.writer, new Date(answer.createdDate), answer.contents, answer.answerId, answer.answerId);
+			console.log("template::", template)
+			$(".qna-comment-slipp-articles").prepend(template);
+			let prevCommentCount = $(".comment-count").text();
+			$(".comment-count").text(Number(prevCommentCount) + 1);
+		}
+
+		function onError(xhr, status) {
+			alert("error");
+		}
+	});
+
+	// comment 삭제 이벤트 핸들러 바인딩 (코멘트 jquery 추가 이후 바로 삭제 이벤트가 발생하지 않음)
+	$(document).on('click', '.link-delete-article', deleteAnswer);
+
+	function deleteAnswer(e) {
 		e.preventDefault();
-		var queryString = $("form[name=answer]").serialize();
 
+		var queryString = $(this).prev().serialize(); // answerId=7
 		$.ajax({
 			type : 'post',
-			url : '/api/qna/addAnswer',
+			url : '/api/qna/deleteAnswer',
 			data : queryString,
 			dataType : 'json',
-			error: onError,
-			success : onSuccess,
+			error: (xhr, status) => {
+				alert("error");
+			},
+			success : (json, status) => {
+				$(this).closest(".article").remove();
+				// decrease comment count
+				let prevCommentCount = $(".comment-count").text();
+				$(".comment-count").text(Number(prevCommentCount) - 1);
+			},
 		});
-	}
 
-	function onSuccess(json, status){
-		var answer = json.answer;
-		var answerTemplate = $("#answerTemplate").html();
-		var template = answerTemplate.format(answer.writer, new Date(answer.createdDate), answer.contents, answer.answerId, answer.answerId);
-		$(".qna-comment-slipp-articles").prepend(template);
-
-		let prevCommentCount = $(".comment-count").text();
-		$(".comment-count").text(Number(prevCommentCount) + 1);
-	}
-
-	function onError(xhr, status) {
-		alert("error");
 	}
 
 	String.prototype.format = function() {
@@ -177,5 +204,7 @@
 		});
 	};
 </script>
+
+
 </body>
 </html>

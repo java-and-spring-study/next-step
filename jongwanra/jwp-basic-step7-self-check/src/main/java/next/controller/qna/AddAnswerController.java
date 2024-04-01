@@ -22,13 +22,12 @@ public class AddAnswerController extends AbstractController {
     @Override
     public ModelAndView execute(HttpServletRequest req, HttpServletResponse response) throws Exception {
         long questionId = Long.parseLong(req.getParameter("questionId"));
-        Answer answer = new Answer(req.getParameter("writer"), req.getParameter("contents"),
+        Answer answerToCreate = new Answer(req.getParameter("writer"), req.getParameter("contents"),
                 questionId);
-        log.debug("answer : {}", answer);
 
-        answerDao.insert(answer);
+        Answer createdAnswer = answerDao.insert(answerToCreate);
         questionDao.increaseCountOfComment(questionId);
 
-        return jsonView().addObject("answer", answer);
+        return jsonView().addObject("answer", createdAnswer);
     }
 }
