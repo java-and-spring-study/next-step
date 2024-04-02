@@ -14,7 +14,12 @@ import core.jdbc.PreparedStatementCreator;
 import core.jdbc.RowMapper;
 
 public class AnswerDao {
-    private final JdbcTemplate jdbcTemplate = new JdbcTemplate();
+    private final JdbcTemplate jdbcTemplate;
+
+    public AnswerDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
     public Answer insert(Answer answer) {
 
         String sql = "INSERT INTO ANSWERS (writer, contents, createdDate, questionId) VALUES (?, ?, ?, ?)";

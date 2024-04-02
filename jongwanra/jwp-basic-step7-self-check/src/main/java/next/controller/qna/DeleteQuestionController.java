@@ -1,5 +1,6 @@
 package next.controller.qna;
 
+import core.jdbc.RDBJdbcTemplate;
 import core.mvc.AbstractController;
 import core.mvc.ModelAndView;
 import next.controller.UserSessionUtils;
@@ -19,8 +20,8 @@ import java.util.stream.Collectors;
 public abstract class DeleteQuestionController extends AbstractController {
     private static final Logger log = LoggerFactory.getLogger(DeleteQuestionController.class);
 
-    private QuestionDao questionDao = new QuestionDao();
-    private AnswerDao answerDao = new AnswerDao();
+    private QuestionDao questionDao = new QuestionDao(new RDBJdbcTemplate());
+    private AnswerDao answerDao = new AnswerDao(new RDBJdbcTemplate());
 
 
     /**

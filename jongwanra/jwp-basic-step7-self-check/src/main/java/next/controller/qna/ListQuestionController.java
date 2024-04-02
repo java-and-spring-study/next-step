@@ -1,5 +1,6 @@
 package next.controller.qna;
 
+import core.jdbc.RDBJdbcTemplate;
 import core.mvc.AbstractController;
 import core.mvc.ModelAndView;
 import next.dao.QuestionDao;
@@ -10,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 public class ListQuestionController extends AbstractController {
-    private QuestionDao questionDao = new QuestionDao();
+    private QuestionDao questionDao = new QuestionDao(new RDBJdbcTemplate());
     @Override
     public ModelAndView execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
         List<Question> questions = questionDao.findAll();

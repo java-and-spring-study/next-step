@@ -1,5 +1,6 @@
 package next.controller.qna;
 
+import core.jdbc.RDBJdbcTemplate;
 import core.mvc.AbstractController;
 import core.mvc.ModelAndView;
 import next.controller.UserSessionUtils;
@@ -18,7 +19,7 @@ import javax.servlet.http.HttpSession;
 public class FormToUpdateQuestionController extends AbstractController {
     private static final Logger log = LoggerFactory.getLogger(FormToUpdateQuestionController.class);
 
-    private QuestionDao questionDao = new QuestionDao();
+    private QuestionDao questionDao = new QuestionDao(new RDBJdbcTemplate());
 
     @Override
     public ModelAndView execute(HttpServletRequest req, HttpServletResponse response) throws Exception {

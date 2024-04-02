@@ -5,6 +5,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import core.jdbc.RDBJdbcTemplate;
 import next.dao.AnswerDao;
 import next.dao.QuestionDao;
 import next.model.Answer;
@@ -13,8 +14,8 @@ import core.mvc.AbstractController;
 import core.mvc.ModelAndView;
 
 public class ShowController extends AbstractController {
-    private QuestionDao questionDao = new QuestionDao();
-    private AnswerDao answerDao = new AnswerDao();
+    private QuestionDao questionDao = new QuestionDao(new RDBJdbcTemplate());
+    private AnswerDao answerDao = new AnswerDao(new RDBJdbcTemplate());
 
 
     @Override

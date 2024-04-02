@@ -3,6 +3,7 @@ package next.controller.qna;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import core.jdbc.RDBJdbcTemplate;
 import next.dao.AnswerDao;
 import next.dao.QuestionDao;
 import next.model.Answer;
@@ -12,8 +13,8 @@ import core.mvc.AbstractController;
 import core.mvc.ModelAndView;
 
 public class DeleteAnswerController extends AbstractController {
-    private AnswerDao answerDao = new AnswerDao();
-    private QuestionDao questionDao = new QuestionDao();
+    private AnswerDao answerDao = new AnswerDao(new RDBJdbcTemplate());
+    private QuestionDao questionDao = new QuestionDao(new RDBJdbcTemplate());
 
     @Override
     public ModelAndView execute(HttpServletRequest request, HttpServletResponse response) throws Exception {

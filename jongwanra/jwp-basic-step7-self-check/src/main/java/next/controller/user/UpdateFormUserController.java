@@ -3,6 +3,7 @@ package next.controller.user;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import core.jdbc.RDBJdbcTemplate;
 import next.controller.UserSessionUtils;
 import next.dao.UserDao;
 import next.model.User;
@@ -10,7 +11,7 @@ import core.mvc.AbstractController;
 import core.mvc.ModelAndView;
 
 public class UpdateFormUserController extends AbstractController {
-    private UserDao userDao = new UserDao();
+    private UserDao userDao = new UserDao(new RDBJdbcTemplate());
 
     @Override
     public ModelAndView execute(HttpServletRequest request, HttpServletResponse response) throws Exception {

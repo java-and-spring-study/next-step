@@ -3,6 +3,7 @@ package next.controller.user;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import core.jdbc.RDBJdbcTemplate;
 import next.controller.UserSessionUtils;
 import next.dao.UserDao;
 import next.model.User;
@@ -14,7 +15,7 @@ import core.mvc.AbstractController;
 import core.mvc.ModelAndView;
 
 public class UpdateUserController extends AbstractController {
-    private UserDao userDao = new UserDao();
+    private UserDao userDao = new UserDao(new RDBJdbcTemplate());
     private static final Logger log = LoggerFactory.getLogger(UpdateUserController.class);
 
     @Override

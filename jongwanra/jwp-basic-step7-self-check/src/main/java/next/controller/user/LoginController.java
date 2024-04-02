@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import core.jdbc.RDBJdbcTemplate;
 import next.dao.UserDao;
 import next.model.User;
 import core.mvc.AbstractController;
@@ -15,7 +16,7 @@ public class LoginController extends AbstractController {
         String userId = request.getParameter("userId");
         String password = request.getParameter("password");
 
-        UserDao userDao = new UserDao();
+        UserDao userDao = new UserDao(new RDBJdbcTemplate());
         User user = userDao.findByUserId(userId);
 
         if (user == null) {

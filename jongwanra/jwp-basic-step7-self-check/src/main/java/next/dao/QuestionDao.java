@@ -14,7 +14,12 @@ import core.jdbc.RowMapper;
 import next.model.Question;
 
 public class QuestionDao {
-    private final JdbcTemplate  jdbcTemplate = new JdbcTemplate();
+    private final JdbcTemplate  jdbcTemplate;
+
+    public QuestionDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
     public Question insert(Question question) {
         String sql = "INSERT INTO QUESTIONS " +
                 "(writer, title, contents, createdDate) " +
