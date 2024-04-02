@@ -70,4 +70,10 @@ public class AnswerDao {
         String sql = "DELETE FROM ANSWERS WHERE answerId = ?";
         jdbcTemplate.update(sql, answerId);
     }
+
+    public void delete(List<Long> answerIds) {
+        for (Long answerId : answerIds) {
+            delete(answerId);
+        }
+    }
 }

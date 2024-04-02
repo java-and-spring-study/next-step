@@ -83,4 +83,9 @@ public class QuestionDao {
         String sql = "UPDATE QUESTIONS set countOfAnswer = countOfAnswer - 1 WHERE questionId = ?";
         jdbcTemplate.update(sql, questionId);
     }
+
+    public void delete(long questionId) {
+        String sql = "DELETE FROM QUESTIONS WHERE questionId = ?";
+        jdbcTemplate.update(sql, questionId);
+    }
 }
