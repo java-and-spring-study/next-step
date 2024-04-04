@@ -6,11 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import next.controller.HomeController;
-import next.controller.qna.AddAnswerController;
-import next.controller.qna.ApiDeleteQuestionController;
 import next.controller.qna.ApiShowController;
 import next.controller.qna.DeleteAnswerController;
-import next.controller.qna.DeleteQuestionController;
 import next.controller.qna.ShowController;
 import next.controller.user.CreateUserController;
 import next.controller.user.ListUserController;
@@ -23,8 +20,8 @@ import next.controller.user.UpdateUserController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RequestMapping {
-    private static final Logger logger = LoggerFactory.getLogger(RequestMapping.class);
+public class LegacyHandlerMapping {
+    private static final Logger logger = LoggerFactory.getLogger(LegacyHandlerMapping.class);
     private Map<String, Controller> mappings = new HashMap<>();
 
     void initMapping() {
