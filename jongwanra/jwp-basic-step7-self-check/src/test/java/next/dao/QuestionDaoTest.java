@@ -1,5 +1,6 @@
 package next.dao;
 
+import core.jdbc.InMemoryJdbcTemplate;
 import core.jdbc.RDBJdbcTemplate;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,17 +16,11 @@ import next.model.Question;
 public class QuestionDaoTest {
     private static final Logger log = LoggerFactory.getLogger(QuestionDaoTest.class);
 
-    @Before
-    public void setup() {
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.addScript(new ClassPathResource("jwp.sql"));
-        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
-    }
 
     @Test
     public void crud() {
         Question question = new Question("writer", "title", "contents");
-        QuestionDao questionDao = new QuestionDao(new RDBJdbcTemplate());
+        QuestionDao questionDao = new QuestionDao(new InMemoryJdbcTemplate());
         Question savedQuestion = questionDao.insert(question);
         log.debug("question : {}", savedQuestion);
     }

@@ -1,5 +1,6 @@
 package next.dao;
 
+import core.jdbc.InMemoryJdbcTemplate;
 import core.jdbc.RDBJdbcTemplate;
 import next.model.Answer;
 
@@ -16,18 +17,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class AnswerDaoTest {
-    @Before
-    public void setup() {
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.addScript(new ClassPathResource("jwp.sql"));
-        DatabasePopulatorUtils.execute(populator, ConnectionManager.getDataSource());
-    }
+
 
     @Test
     public void addAnswer() throws Exception {
         long questionId = 1L;
         Answer expected = new Answer("javajigi", "answer contents", questionId);
-        AnswerDao dut = new AnswerDao(new RDBJdbcTemplate());
+        AnswerDao dut = new AnswerDao(new InMemoryJdbcTemplate());
         Answer answer = dut.insert(expected);
         System.out.println("Answer : " + answer);
     }
@@ -36,7 +32,7 @@ public class AnswerDaoTest {
     @Test
     public void delete() throws Exception {
         long questionId = 7L;
-        AnswerDao answerDao = new AnswerDao(new RDBJdbcTemplate());
+        AnswerDao answerDao = new AnswerDao(new InMemoryJdbcTemplate());
 
         List<Answer> answers = answerDao.findAllByQuestionId(questionId);
         List<Long> answerIds = answers.stream()

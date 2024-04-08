@@ -58,7 +58,6 @@ public abstract class DeleteQuestionController extends AbstractController {
     protected abstract ModelAndView handleResponse();
 
 
-
     private void deleteAll(Question question, List<Answer> answers) {
         answerDao.delete(toIds(answers));
         questionDao.delete(question.getQuestionId());
