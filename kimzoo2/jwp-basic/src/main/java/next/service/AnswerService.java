@@ -8,7 +8,11 @@ import next.model.Question;
 public class AnswerService {
 
 	private AnswerDao answerDao = new AnswerDao();
-	private QuestionDao questionDao = new QuestionDao();
+	private QuestionDao questionDao;
+
+	public AnswerService(QuestionDao questionDao) {
+		this.questionDao = questionDao;
+	}
 
 	public int delete(long answerId){
 		Answer foundAnswer = answerDao.findById(answerId);

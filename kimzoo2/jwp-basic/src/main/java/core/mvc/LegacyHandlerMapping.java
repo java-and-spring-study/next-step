@@ -25,7 +25,7 @@ public class LegacyHandlerMapping {
     private Map<String, Controller> mappings = new HashMap<>();
 
     void initMapping() {
-        mappings.put("/", new HomeController());
+        mappings.put("/", homeController());
         mappings.put("/users/form", new ForwardController("/user/form.jsp"));
         mappings.put("/users/loginForm", new ForwardController("/user/login.jsp"));
         mappings.put("/users", new ListUserController());
@@ -36,12 +36,12 @@ public class LegacyHandlerMapping {
         mappings.put("/users/updateForm", new UpdateFormUserController());
         mappings.put("/users/update", new UpdateUserController());
         mappings.put("/qna/form", new ForwardController("/qna/form.jsp"));
-        mappings.put("/qna/show", new ShowController());
+        mappings.put("/qna/show", showController());
         // DispatcherServlet에서 이미 생성된 controller에 dao 주입하기엔 불편함..
         mappings.put("/qna/deleteQuestion", deleteQuestionController());
-        mappings.put("/api/qna/list", new ApiShowController());
+        mappings.put("/api/qna/list", apiShowController());
         mappings.put("/api/qna/addAnswer", addAnswerController());
-        mappings.put("/api/qna/deleteAnswer", new DeleteAnswerController());
+        mappings.put("/api/qna/deleteAnswer", deleteAnswerController());
         mappings.put("/api/qna/deleteQuestion", apiDeleteQuestionController());
 
         logger.info("Initialized Request Mapping!");

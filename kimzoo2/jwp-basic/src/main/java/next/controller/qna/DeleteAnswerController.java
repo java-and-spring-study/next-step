@@ -15,7 +15,12 @@ import next.service.AnswerService;
 
 public class DeleteAnswerController extends AbstractController {
 
-    private AnswerService answerService = new AnswerService();
+    private AnswerService answerService;
+
+    public DeleteAnswerController(AnswerService answerService) {
+        this.answerService = answerService;
+    }
+
     @Override
     public ModelAndView execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
         Long answerId = Long.parseLong(request.getParameter("answerId"));

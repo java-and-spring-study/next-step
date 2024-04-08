@@ -14,6 +14,7 @@ import core.jdbc.JdbcTemplate;
 import core.mvc.JspView;
 import core.mvc.ModelAndView;
 import next.dao.DummyQuestionDao;
+import next.service.QuestionService;
 
 //14~
 public class DeleteQuestionControllerTest {
@@ -23,7 +24,8 @@ public class DeleteQuestionControllerTest {
 	@Before
 	public void setUp() throws Exception {
 		DummyQuestionDao dao = new DummyQuestionDao(new JdbcTemplate());
-		deleteQuestionController = new DeleteQuestionController(dao);
+		QuestionService questionService = new QuestionService(dao);
+		deleteQuestionController = new DeleteQuestionController(questionService);
 	}
 
 	@Test

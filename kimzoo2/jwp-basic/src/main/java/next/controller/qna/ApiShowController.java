@@ -13,10 +13,14 @@ import next.model.Answer;
 import next.model.Question;
 
 public class ApiShowController extends AbstractController {
-    private QuestionDao questionDao = new QuestionDao();
+    private QuestionDao questionDao;
     private AnswerDao answerDao = new AnswerDao();
     private Question question;
     private List<Answer> answers;
+
+    public ApiShowController(QuestionDao questionDao) {
+        this.questionDao = questionDao;
+    }
 
     @Override
     public ModelAndView execute(HttpServletRequest req, HttpServletResponse response) throws Exception {

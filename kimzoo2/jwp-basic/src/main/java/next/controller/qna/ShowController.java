@@ -13,10 +13,14 @@ import core.mvc.AbstractController;
 import core.mvc.ModelAndView;
 
 public class ShowController extends AbstractController {
-    private QuestionDao questionDao = new QuestionDao();
+    private QuestionDao questionDao;
     private AnswerDao answerDao = new AnswerDao();
     private Question question;
     private List<Answer> answers;
+
+    public ShowController(QuestionDao questionDao) {
+        this.questionDao = questionDao;
+    }
 
     @Override
     public ModelAndView execute(HttpServletRequest req, HttpServletResponse response) throws Exception {
