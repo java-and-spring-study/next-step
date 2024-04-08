@@ -24,6 +24,7 @@ public class AnnotationHandlerMapping {
     public HandlerExecution getHandler(HttpServletRequest request) {
         String requestUri = request.getRequestURI();
         RequestMethod rm = RequestMethod.valueOf(request.getMethod().toUpperCase());
+        // handlerExecutions map에 요청 url와 http메소드로 등록된 HandlerKey가 등록되어 있는지 확인한다
         return handlerExecutions.get(new HandlerKey(requestUri, rm));
     }
 }

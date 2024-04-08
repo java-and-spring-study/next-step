@@ -38,8 +38,10 @@ public class DispatcherServlet extends HttpServlet {
 
         Controller controller = rm.findController(req.getRequestURI());
         try {
+            // 요청 URL의 컨트롤러가 LegacyHandlerMapping에 등록되어 있을 때
             if(controller != null){
                 render(req, resp, controller.execute(req, resp));
+            // 요청 URL의 컨트롤러가 LegacyHandlerMapping에 등록되지 않았을 때
             }else {
                 HandlerExecution he = ahm.getHandler(req); // 컨트롤러와 같은 역할을 함
                 if(he == null){
