@@ -5,10 +5,9 @@ import static core.mvc.Configuration.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import next.controller.HomeController;
-import next.controller.qna.ApiShowController;
-import next.controller.qna.DeleteAnswerController;
-import next.controller.qna.ShowController;
+import javax.servlet.http.HttpServletRequest;
+
+import core.nmvc.HandlerMapping;
 import next.controller.user.CreateUserController;
 import next.controller.user.ListUserController;
 import next.controller.user.LoginController;
@@ -20,7 +19,7 @@ import next.controller.user.UpdateUserController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LegacyHandlerMapping {
+public class LegacyHandlerMapping implements HandlerMapping {
     private static final Logger logger = LoggerFactory.getLogger(LegacyHandlerMapping.class);
     private Map<String, Controller> mappings = new HashMap<>();
 
@@ -47,12 +46,13 @@ public class LegacyHandlerMapping {
         logger.info("Initialized Request Mapping!");
     }
 
-    public Controller findController(String url) {
-        return mappings.get(url);
-    }
-
     void put(String url, Controller controller) {
         mappings.put(url, controller);
     }
 
+    @Override
+    public Object getHandler(HttpServletRequest request) {
+        String requestUri = request.getRequestURI();
+        return mappings.get(requestUri);
+    }
 }

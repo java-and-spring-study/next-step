@@ -20,7 +20,7 @@ import core.annotation.ControllerScanner;
 import core.annotation.RequestMapping;
 import core.annotation.RequestMethod;
 
-public class AnnotationHandlerMapping {
+public class AnnotationHandlerMapping implements HandlerMapping{
     private static final Logger logger = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
     private Object[] basePackage;
 
@@ -31,7 +31,7 @@ public class AnnotationHandlerMapping {
     }
 
     public void initialize() {
-        ControllerScanner controllerScanner = new ControllerScanner();
+        ControllerScanner controllerScanner = new ControllerScanner(basePackage);
         // @Controller 어노테이션이 붙은 클래스를 찾는다.
 		Map<Class<?>, Object> map = null;
 		try {
