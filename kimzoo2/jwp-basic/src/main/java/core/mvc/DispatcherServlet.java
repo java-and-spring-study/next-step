@@ -1,6 +1,9 @@
 package core.mvc;
 
+import static com.sun.javafx.media.PrismMediaFrameHandler.*;
+
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,50 +16,48 @@ import org.slf4j.LoggerFactory;
 
 import core.nmvc.AnnotationHandlerMapping;
 import core.nmvc.HandlerExecution;
+import core.nmvc.HandlerMapping;
 
 @WebServlet(name = "dispatcher", urlPatterns = "/", loadOnStartup = 1)
 public class DispatcherServlet extends HttpServlet {
-    private static final long serialVersionUID = 1L;
-    private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
+	private static final long serialVersionUID = 1L;
+	private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
 
-    private LegacyHandlerMapping rm;
-    private AnnotationHandlerMapping ahm;
+	private LegacyHandlerMapping rm;
+	private AnnotationHandlerMapping ahm;
+	private List<HandlerMapping> hm;
 
+	@Override
+	public void init() throws ServletException {
+		LegacyHandlerMapping legacyHandlerMapping = new LegacyHandlerMapping();
+		AnnotationHandlerMapping annotationHandlerMapping = new AnnotationHandlerMapping("core.nmvc");
+		legacyHandlerMapping.initMapping();
+		annotationHandlerMapping.initialize();
+		hm.add(legacyHandlerMapping);
+		hm.add(annotationHandlerMapping);
+	}
 
-    @Override
-    public void init() throws ServletException {
-        rm = new LegacyHandlerMapping();
-        rm.initMapping();
-        ahm = new AnnotationHandlerMapping("next.controller");
-        ahm.initialize();
-    }
+	@Override
+	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String requestUri = req.getRequestURI();
+		logger.debug("Method : {}, Request URI : {}", req.getMethod(), requestUri);
+		Object handler = getHandler(req);
+		ModelAndView mav = null;
+		try {
+			if (handler instanceof Controller) {
+				mav = ((Controller)handler).execute(req, resp);
+			} else if (handler instanceof HandlerExecution) {
+				mav = ((HandlerExecution)handler).handle(req, resp);
+			}
+			render(req, resp, mav);
+		} catch (Exception e) {
+			logger.error("Exception : {}", e);
+			throw new ServletException(e.getMessage());
+		}
+	}
 
-    @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String requestUri = req.getRequestURI();
-        logger.debug("Method : {}, Request URI : {}", req.getMethod(), requestUri);
-
-        Controller controller = rm.findController(req.getRequestURI());
-        try {
-            // 요청 URL의 컨트롤러가 LegacyHandlerMapping에 등록되어 있을 때
-            if(controller != null){
-                render(req, resp, controller.execute(req, resp));
-            // 요청 URL의 컨트롤러가 LegacyHandlerMapping에 등록되지 않았을 때
-            }else {
-                HandlerExecution he = ahm.getHandler(req); // 컨트롤러와 같은 역할을 함
-                if(he == null){
-                    throw new ServletException("유효하지 않은 요청입니다.");
-                }
-                render(req, resp, he.handle(req, resp));
-            }
-        } catch (Throwable e) {
-            logger.error("Exception : {}", e);
-            throw new ServletException(e.getMessage());
-        }
-    }
-
-    private void render(HttpServletRequest req, HttpServletResponse resp, ModelAndView mav) throws Exception {
-        View view = mav.getView();
-        view.render(mav.getModel(), req, resp);
-    }
+	private void render(HttpServletRequest req, HttpServletResponse resp, ModelAndView mav) throws Exception {
+		View view = mav.getView();
+		view.render(mav.getModel(), req, resp);
+	}
 }
