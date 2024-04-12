@@ -3,6 +3,7 @@ package core.di.factory;
 import static org.junit.Assert.assertNotNull;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
 import org.junit.Before;
