@@ -5,6 +5,8 @@ import static org.junit.Assert.assertNotNull;
 import java.util.Map;
 import java.util.Set;
 
+import core.di.factory.example.MyUserController;
+import core.di.factory.example.MyUserService;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -26,6 +28,7 @@ public class BeanFactoryTest {
         beanFactory.initialize();
     }
 
+
     @Test
     public void di() throws Exception {
         QnaController qnaController = beanFactory.getBean(QnaController.class);
@@ -36,6 +39,21 @@ public class BeanFactoryTest {
         MyQnaService qnaService = qnaController.getQnaService();
         assertNotNull(qnaService.getUserRepository());
         assertNotNull(qnaService.getQuestionRepository());
+    }
+
+    @Test
+    public void setter_di() throws Exception {
+        MyUserController myUserController = beanFactory.getBean(MyUserController.class);
+        assertNotNull(myUserController);
+        assertNotNull(myUserController.getMyUserService());
+    }
+
+    @Test
+    public void field_di() throws Exception {
+        MyUserService myUserService = beanFactory.getBean(MyUserService.class);
+        assertNotNull(myUserService);
+        assertNotNull(myUserService.getUserRepository());
+
     }
 
     @Test
